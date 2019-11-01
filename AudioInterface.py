@@ -53,25 +53,25 @@ class AudioInterface:
         
         samples_to_write = len(in_data)
 
-        if Globals.waiting_to_start == 1: # first recording
+        # if Globals.waiting_to_start == 1: # first recording
+        #     for track in self.tracks:
+        #         if track.recording:
+        #             track.frames.extend(in_data)
+        #             print("adding data")
+        #         else:
+        #             track.frames.extend(b'x\00'*samples_to_write)
+        #     self.current_position += samples_to_write
+        # else: # not first recording
+        space_left = Globals.track_length - self.current_position
+        if space_left < samples_to_write:
             for track in self.tracks:
                 if track.recording:
-                    track.frames.extend(in_data)
-                    print("adding data")
-                else:
-                    track.frames.extend(b'x\00'*samples_to_write)
-            self.current_position += samples_to_write
-        else: # not first recording
-            space_left = Globals.track_length - self.current_position
-            if space_left < samples_to_write:
-                for track in self.tracks:
-                    if track.recording:
-                        track.frames[self.current_position:self.current_position + space_left] = list(map(add, track.frames[self.current_position:self.current_position + space_left], in_data[0:space_left]))
-                        track.frames[0:samples_to_write-space_left] = list(map(add, track.frames[0:samples_to_write-space_left], in_data[space_left:]))
-            else:
-                for track in self.tracks:
-                    if track.recording:
-                        track.frames[self.current_position:self.current_position + samples_to_write] = list(map(add, track.frames[self.current_position:self.current_position + samples_to_write], in_data))
+                    track.frames[self.current_position:self.current_position + space_left] = list(map(add, track.frames[self.current_position:self.current_position + space_left], in_data[0:space_left]))
+                    track.frames[0:samples_to_write-space_left] = list(map(add, track.frames[0:samples_to_write-space_left], in_data[space_left:]))
+        else:
+            for track in self.tracks:
+                if track.recording:
+                    track.frames[self.current_position:self.current_position + samples_to_write] = list(map(add, track.frames[self.current_position:self.current_position + samples_to_write], in_data))
         # current_position should be updated, but I'll need to either combine into a single callback or create separate positions first
         
         ############ play audio ###################

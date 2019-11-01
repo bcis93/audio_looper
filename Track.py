@@ -4,7 +4,7 @@ class Track:
 
     playing = False
     recording = False
-    frames = []
+    frames = [0]*176400
 
     def __init__(self, audio_interface):
         self.audio_interface = audio_interface
