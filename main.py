@@ -34,7 +34,7 @@ track2 = Track(audio_interface)
 track3 = Track(audio_interface)
 track4 = Track(audio_interface)
 
-tracks = [ track1, track2, track3, track4]
+tracks = [ track1] #, track2, track3, track4]
 
 for track in tracks:
     audio_interface.add_track(track)
