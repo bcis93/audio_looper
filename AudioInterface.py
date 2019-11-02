@@ -101,11 +101,11 @@ class AudioInterface:
                 # TODO: also set master_done if master track??
                 Globals.audio_wrap_around = True # set a flag so the main loop knows to set master_done to true for one cycle
             else:
-                #data = bytearray(samples_to_write)
+                data = bytearray(samples_to_write)
                 for track in self.tracks:
                     if track.playing:
-                        #data = list(map(add, data, track.frames[self.current_position:self.current_position + samples_to_write]))
-                        data = track.frames[self.current_position:self.current_position + samples_to_write]
+                        data = list(map(add, data, track.frames[self.current_position:self.current_position + samples_to_write]))
+                        #data = track.frames[self.current_position:self.current_position + samples_to_write]
                 self.current_position += samples_to_write
         
         self.thread_lock.release()
