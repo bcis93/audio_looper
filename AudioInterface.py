@@ -106,7 +106,7 @@ class AudioInterface:
                     if track.playing:
                         pass
                         #data = list(map(add, data, track.frames[self.current_position:self.current_position + samples_to_write]))
-                        #data = track.frames[self.current_position:self.current_position + samples_to_write]
+                        data = track.frames[self.current_position:self.current_position + samples_to_write]
                 self.current_position += samples_to_write
         
         self.thread_lock.release()
