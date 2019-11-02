@@ -104,7 +104,8 @@ class AudioInterface:
                 data = bytearray(samples_to_write)
                 for track in self.tracks:
                     if track.playing:
-                        data = list(map(add, data, track.frames[self.current_position:self.current_position + samples_to_write]))
+                        pass
+                        #data = list(map(add, data, track.frames[self.current_position:self.current_position + samples_to_write]))
                         #data = track.frames[self.current_position:self.current_position + samples_to_write]
                 self.current_position += samples_to_write
         
