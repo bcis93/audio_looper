@@ -80,30 +80,32 @@ class AudioInterface:
         if Globals.waiting_to_start <= 1:  # If first recording (meaning we don't have anything to play back yet)
             data = bytearray(in_data)
         else:
-            data_left = Globals.track_length - self.current_position
+            data = bytearray(in_data)
 
-            if data_left < samples_to_write:
-                data = bytearray(data_left)
-                for track in self.tracks:
-                    if track.playing:
-                        print("playing data")
-                        data = list(map(add, data, track.frames[self.current_position:]))
+            # data_left = Globals.track_length - self.current_position
+
+            # if data_left < samples_to_write:
+            #     data = bytearray(data_left)
+            #     for track in self.tracks:
+            #         if track.playing:
+            #             print("playing data")
+            #             data = list(map(add, data, track.frames[self.current_position:]))
                 
-                extra = bytearray(samples_to_write - data_left)
-                for track in self.tracks:
-                    if track.playing:
-                        extra = list(map(add, extra, track.frames[0:samples_to_write - data_left]))
+            #     extra = bytearray(samples_to_write - data_left)
+            #     for track in self.tracks:
+            #         if track.playing:
+            #             extra = list(map(add, extra, track.frames[0:samples_to_write - data_left]))
 
-                data.extend(extra)
-                self.current_position = samples_to_write - data_left
-                # TODO: also set master_done if master track??
-                Globals.audio_wrap_around = True # set a flag so the main loop knows to set master_done to true for one cycle
-            else:
-                data = bytearray(samples_to_write)
-                for track in self.tracks:
-                    if track.playing:
-                        data = list(map(add, data, track.frames[self.current_position:self.current_position + samples_to_write]))
-                self.current_position += samples_to_write
+            #     data.extend(extra)
+            #     self.current_position = samples_to_write - data_left
+            #     # TODO: also set master_done if master track??
+            #     Globals.audio_wrap_around = True # set a flag so the main loop knows to set master_done to true for one cycle
+            # else:
+            #     data = bytearray(samples_to_write)
+            #     for track in self.tracks:
+            #         if track.playing:
+            #             data = list(map(add, data, track.frames[self.current_position:self.current_position + samples_to_write]))
+            #     self.current_position += samples_to_write
         
         self.thread_lock.release()
         print("data: {}".format(data[0]))
