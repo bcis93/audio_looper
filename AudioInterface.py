@@ -53,15 +53,15 @@ class AudioInterface:
         
         samples_to_write = len(in_data)
 
-        if Globals.waiting_to_start == 1: # first recording
-            for track in self.tracks:
-                if track.recording:
-                    track.frames.extend(in_data)
-                    print("adding data")
-                else:
-                    track.frames.extend(b'x\00'*samples_to_write)
-            self.current_position += samples_to_write
-        elif Globals.waiting_to_start > 1: # not first recording
+        # if Globals.waiting_to_start == 1: # first recording
+        #     for track in self.tracks:
+        #         if track.recording:
+        #             track.frames.extend(in_data)
+        #             print("adding data")
+        #         else:
+        #             track.frames.extend(b'x\00'*samples_to_write)
+        #     self.current_position += samples_to_write
+        if Globals.waiting_to_start >= 1: # if recording
             space_left = Globals.track_length - self.current_position
             if space_left < samples_to_write:
                 for track in self.tracks:
