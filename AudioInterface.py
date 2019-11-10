@@ -46,8 +46,7 @@ class AudioInterface:
 
     def audio_callback(self, in_data, frame_count, time_info, status):
         print(self.current_position)
-        print("status: {}".format(status))
-        print("in_data[0]: {}".format(in_data[0]))
+        print(Globals.track_length)
         self.thread_lock.acquire()
         ############ record audio ###################
         
