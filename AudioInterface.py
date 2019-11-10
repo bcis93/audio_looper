@@ -9,7 +9,7 @@ class AudioInterface:
     bytes_per_sample = 2 # 16-bit resolution
     chans = 2 # 2 channels - I really only need 1, but the audio playback was all choppy with just 1...
     samp_rate = 44100 # 44.1kHz sampling rate
-    chunk = 4096 # 2^12 samples for buffer
+    chunk = 2048 # 2^12 samples for buffer
     # record_secs = 5 # seconds to record
     dev_index = 2 # device index found by p.get_device_info_by_index(ii)
     # wav_output_filename = 'test1.wav' # name of .wav file
