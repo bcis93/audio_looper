@@ -221,7 +221,7 @@ class AudioInterface:
 
     def set_global_track_length(self):
         self.thread_lock.acquire()
-        Globals.track_length = self.current_position + 1
+        Globals.track_length = self.current_position
         self.thread_lock.release()
 
     def reset_current_position(self):
