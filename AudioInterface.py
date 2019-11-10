@@ -104,7 +104,7 @@ class AudioInterface:
                 data = bytearray(samples_to_write)
                 for track in self.tracks:
                     if track.playing:
-                        pass
+                        # try doing this with numpy...
                         random = list(map(add, data, track.frames[self.current_position:self.current_position + samples_to_write]))
                         data = track.frames[self.current_position:self.current_position + samples_to_write]
                 self.current_position += samples_to_write
@@ -214,7 +214,7 @@ class AudioInterface:
 
     def set_global_track_length(self):
         self.thread_lock.acquire()
-        Globals.track_length = self.current_position
+        Globals.track_length = self.current_position + 1
         self.thread_lock.release()
 
     def reset_current_position(self):
