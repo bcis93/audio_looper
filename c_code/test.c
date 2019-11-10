@@ -36,7 +36,7 @@ static int patestCallback( const void *inputBuffer, void *outputBuffer,
 
 int main()
 {
-    paError err = Pa_Initialize();
+    PaError err = Pa_Initialize();
     if( err != paNoError )
     {
         printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
@@ -53,10 +53,11 @@ int main()
         else
         {
             const   PaDeviceInfo *deviceInfo;
-            for( int i=0; i<numDevices; i++ )
+            int i;
+            for( i=0; i<numDevices; i++ )
             {
                 deviceInfo = Pa_GetDeviceInfo( i );
-                printf("%s\r\n", deviceInfo.name);
+                printf("%s\r\n", deviceInfo->name);
             }
         }
         
