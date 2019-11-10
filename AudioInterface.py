@@ -83,12 +83,15 @@ class AudioInterface:
             data_left = Globals.track_length - self.current_position
 
             if data_left < samples_to_write:
-                #data = bytearray(data_left)
-                for track in self.tracks:
-                    if track.playing:
-                        print("playing data")
-                        #data = list(map(add, data, track.frames[self.current_position:]))
-                        data = track.frames[self.current_position:]
+                if data_left > 0:
+                    #data = bytearray(data_left)
+                    for track in self.tracks:
+                        if track.playing:
+                            print("playing data")
+                            #data = list(map(add, data, track.frames[self.current_position:]))
+                            data = track.frames[self.current_position:]
+                else:
+                    data = []
                 
                 #extra = bytearray(samples_to_write - data_left)
                 for track in self.tracks:
