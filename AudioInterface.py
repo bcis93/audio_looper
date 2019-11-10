@@ -7,7 +7,7 @@ import threading
 class AudioInterface:
     form_1 = pyaudio.paInt16 # 16-bit resolution
     bytes_per_sample = 2 # 16-bit resolution
-    chans = 1 # 2 channels - I really only need 1, but the audio playback was all choppy with just 1...
+    chans = 2 # 2 channels - I really only need 1, but the audio playback was all choppy with just 1...
     samp_rate = 44100 # 44.1kHz sampling rate
     chunk = 2048 # 2^12 samples for buffer
     # record_secs = 5 # seconds to record
