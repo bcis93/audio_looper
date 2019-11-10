@@ -45,8 +45,8 @@ class AudioInterface:
         self.stream.start_stream()
 
     def audio_callback(self, in_data, frame_count, time_info, status):
-        print(self.current_position)
-        print(Globals.track_length)
+        #print(self.current_position)
+        #print(Globals.track_length)
         self.thread_lock.acquire()
         ############ record audio ###################
         
@@ -56,7 +56,7 @@ class AudioInterface:
             for track in self.tracks:
                 if track.recording:
                     track.frames.extend(in_data)
-                    print("adding data")
+                    #print("adding data")
                 else:
                     track.frames.extend(b'x\00'*samples_to_write)
             self.current_position += samples_to_write
@@ -91,7 +91,7 @@ class AudioInterface:
                     #data = bytearray(data_left)
                     for track in self.tracks:
                         if track.playing:
-                            print("playing data")
+                            #print("playing data")
                             #data = list(map(add, data, track.frames[self.current_position:]))
                             data = track.frames[self.current_position:]
                 else:
@@ -117,8 +117,8 @@ class AudioInterface:
                 self.current_position += samples_to_write
         
         self.thread_lock.release()
-        print("data: {}".format(data[0]))
-        print("data len: {}".format(len(data)))
+        #print("data: {}".format(data[0]))
+        #print("data len: {}".format(len(data)))
         return (bytes(data), pyaudio.paContinue)
 
     # def recording_callback(self, in_data, frame_count, time_info, status):
