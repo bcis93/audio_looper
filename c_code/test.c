@@ -1,4 +1,5 @@
 #include "portaudio.h"
+#include <stdio.h>
 
 typedef struct
 {
@@ -21,19 +22,21 @@ static int patestCallback( const void *inputBuffer, void *outputBuffer,
                            PaStreamCallbackFlags statusFlags,
                            void *userData )
 {
+    float* in = (float*) inputBuffer;
+    float* out = (float*) outputBuffer;
     unsigned int i;
     for( i=0; i<framesPerBuffer; i++ )
     {
-        *outputBuffer = *inputBuffer;
-        outputBuffer++;
-        inputBuffer++;
+        *out = *in;
+        out++;
+        in++;
     }
     return 0;
 }
 
 int main()
 {
-    err = Pa_Initialize();
+    paError err = Pa_Initialize();
     if( err != paNoError )
     {
         printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
@@ -50,10 +53,10 @@ int main()
         else
         {
             const   PaDeviceInfo *deviceInfo;
-            for( i=0; i<numDevices; i++ )
+            for( int i=0; i<numDevices; i++ )
             {
                 deviceInfo = Pa_GetDeviceInfo( i );
-                ...
+                printf("%s\r\n", deviceInfo.name);
             }
         }
         
