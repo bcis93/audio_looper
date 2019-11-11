@@ -35,7 +35,7 @@ static int patestCallback( const void *inputBuffer, void *outputBuffer,
     int32_t* in = (int32_t*) inputBuffer;
     //int32_t* out = (int32_t*) outputBuffer;
     unsigned int i;
-    outputBuffer = &(audio[current_position])
+    outputBuffer = (void*)&(audio[current_position]);
     for( i=0; i<framesPerBuffer; i++ )
     {
         // *out = *in;
