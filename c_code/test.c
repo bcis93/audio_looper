@@ -1,5 +1,6 @@
 #include "portaudio.h"
 #include <stdio.h>
+#include <stdbool.h>
 
 // gcc test.c -lrt -lasound -lpthread -lportaudio -o test
 
@@ -18,6 +19,7 @@ static paTestData data;
 static float audio[SAMPLE_RATE * SECONDS] = {};
 static int current_position = 0;
 static volatile int count = 0;
+static bool flag = false;
 
 /* This routine will be called by the PortAudio engine when audio is needed.
    It may called at interrupt level on some machines so don't do anything
@@ -42,6 +44,7 @@ static int patestCallback( const void *inputBuffer, void *outputBuffer,
         {
             current_position = 0;
             count++;
+            flag = true;
         }
         out++;
         in++;
@@ -106,7 +109,7 @@ int main()
                                     &input,
                                     &output,
                                     SAMPLE_RATE,
-                                    256,
+                                    2048,
                                     paNoFlag,
                                     patestCallback,
                                     &data );	
@@ -117,7 +120,14 @@ int main()
 
         /* Sleep for several seconds. */
         //Pa_Sleep(5*1000);
-        while (count < 5);
+        while (count < 5)
+        {
+            if (flag)
+            {
+                printf("wrap\r\n");
+                flag = false;
+            }
+        }
 
         err = Pa_StopStream( stream );
         if( err != paNoError ) printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
