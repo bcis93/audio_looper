@@ -17,7 +17,7 @@ paTestData;
 #define SECONDS (10)
 static paTestData data;
 
-static int16_t audio[SAMPLE_RATE * SECONDS] = {};
+static int16_t audio[SAMPLE_RATE * SECONDS * 2] = {};
 static int current_position = 0;
 static volatile int count = 0;
 static bool flag = false;
@@ -37,20 +37,31 @@ static int patestCallback( const void *inputBuffer, void *outputBuffer,
     unsigned int i;
     for( i=0; i<framesPerBuffer; i++ )
     {
-        *out = *in;
-        // audio[current_position] += *in;
-        // *out = audio[current_position];
-        // current_position++;
-        // if (current_position >= SAMPLE_RATE * SECONDS)
-        // {
-        //     current_position = 0;
-        //     count++;
-        //     flag = true;
-        // }
+        // *out = *in;
+        audio[current_position] += *in;
+        *out = audio[current_position];
+        current_position++;
+        if (current_position >= SAMPLE_RATE * SECONDS)
+        {
+            current_position = 0;
+            count++;
+            flag = true;
+        }
+        
         out++;
         in++;
 
-        *out = *in;
+        // *out = *in;
+        audio[current_position] += *in;
+        *out = audio[current_position];
+        current_position++;
+        if (current_position >= SAMPLE_RATE * SECONDS)
+        {
+            current_position = 0;
+            count++;
+            flag = true;
+        }
+
         out++;
         in++;
     }
