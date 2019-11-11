@@ -68,8 +68,8 @@ int main()
         PaStream *stream;
         PaError err;
         PaDeviceIndex index = 2;
-        PaStreamParameters input = {2, 2, paFloat32, defaultLowInputLatency, NULL};
-        PaStreamParameters output = {2, 2, paFloat32, defaultLowInputLatency, NULL};
+        PaStreamParameters input = {2, 2, paFloat32, (Pa_GetDeviceInfo(2))->defaultLowInputLatency, NULL};
+        PaStreamParameters output = {2, 2, paFloat32, (Pa_GetDeviceInfo(2))->defaultLowOutputLatency, NULL};
 
         /* Open an audio I/O stream. */
         // err = Pa_OpenDefaultStream( &stream,
