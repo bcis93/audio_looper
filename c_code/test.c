@@ -36,16 +36,16 @@ static int patestCallback( const void *inputBuffer, void *outputBuffer,
     unsigned int i;
     for( i=0; i<framesPerBuffer; i++ )
     {
-        // *out = *in;
-        audio[current_position] += *in;
-        *out = audio[current_position];
-        current_position++;
-        if (current_position >= SAMPLE_RATE * SECONDS)
-        {
-            current_position = 0;
-            count++;
-            flag = true;
-        }
+        *out = *in;
+        // audio[current_position] += *in;
+        // *out = audio[current_position];
+        // current_position++;
+        // if (current_position >= SAMPLE_RATE * SECONDS)
+        // {
+        //     current_position = 0;
+        //     count++;
+        //     flag = true;
+        // }
         out++;
         in++;
     }
