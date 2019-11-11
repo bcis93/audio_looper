@@ -114,7 +114,7 @@ int main()
                                     &input,
                                     &output,
                                     SAMPLE_RATE,
-                                    2048,
+                                    512,
                                     paNoFlag,
                                     patestCallback,
                                     &data );	
