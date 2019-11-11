@@ -15,12 +15,13 @@ paTestData;
 
 #define SAMPLE_RATE (44100)
 #define SECONDS (10)
+#define AUDIO_LENGTH (441000)
 static paTestData data;
 
-static int32_t audio[SAMPLE_RATE * SECONDS] = {};
+static int32_t audio[AUDIO_LENGTH] = {};
 static int current_position = 0;
 static volatile int count = 0;
-static bool flag = false;
+static volatile bool flag = false;
 
 /* This routine will be called by the PortAudio engine when audio is needed.
    It may called at interrupt level on some machines so don't do anything
@@ -33,23 +34,23 @@ static int patestCallback( const void *inputBuffer, void *outputBuffer,
                            void *userData )
 {
     int32_t* in = (int32_t*) inputBuffer;
-    //int32_t* out = (int32_t*) outputBuffer;
+    int32_t* out = (int32_t*) outputBuffer;
     unsigned int i;
-    outputBuffer = (void*)&(audio[current_position]);
+    //outputBuffer = (void*)&(audio[current_position]);
     for( i=0; i<framesPerBuffer; i++ )
     {
-        // *out = *in;
+        //*out = *in;
         audio[current_position] += *in;
-        //*out = audio[current_position];
+        *out = audio[current_position];
         current_position++;
-        if (current_position >= SAMPLE_RATE * SECONDS)
+        if (current_position >= AUDIO_LENGTH)
         {
             current_position = 0;
             count++;
             flag = true;
         }
 
-        //out++;
+        out++;
         in++;
     }
     return 0;
@@ -112,7 +113,7 @@ int main()
                                     &input,
                                     &output,
                                     SAMPLE_RATE,
-                                    512,
+                                    2048,
                                     paNoFlag,
                                     patestCallback,
                                     &data );	
