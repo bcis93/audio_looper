@@ -12,7 +12,12 @@ paTestData;
 
 
 #define SAMPLE_RATE (44100)
+#define SECONDS (10)
 static paTestData data;
+
+static float audio[SAMPLE_RATE * SECONDS] = {};
+static int current_position = 0;
+static volatile int count = 0;
 
 /* This routine will be called by the PortAudio engine when audio is needed.
    It may called at interrupt level on some machines so don't do anything
@@ -29,7 +34,15 @@ static int patestCallback( const void *inputBuffer, void *outputBuffer,
     unsigned int i;
     for( i=0; i<framesPerBuffer; i++ )
     {
-        *out = *in;
+        // *out = *in;
+        audio[current_position] += *in;
+        *out = audio[current_position];
+        current_position++;
+        if (current_position >= SAMPLE_RATE * SECONDS)
+        {
+            current_position = 0;
+            count++;
+        }
         out++;
         in++;
     }
@@ -103,7 +116,8 @@ int main()
         if( err != paNoError ) printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
 
         /* Sleep for several seconds. */
-        Pa_Sleep(5*1000);
+        //Pa_Sleep(5*1000);
+        while (count < 5);
 
         err = Pa_StopStream( stream );
         if( err != paNoError ) printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
