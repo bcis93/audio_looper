@@ -49,6 +49,10 @@ static int patestCallback( const void *inputBuffer, void *outputBuffer,
         // }
         out++;
         in++;
+
+        *out = *in;
+        out++;
+        in++;
     }
     return 0;
 }
