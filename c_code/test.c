@@ -1,6 +1,8 @@
 #include "portaudio.h"
 #include <stdio.h>
 
+// gcc test.c -lrt -lasound -lpthread -lportaudio -o test
+
 typedef struct
 {
     float left_phase;
@@ -66,8 +68,8 @@ int main()
         PaStream *stream;
         PaError err;
         PaDeviceIndex index = 2;
-        PaStreamParameters input = {2};
-        PaStreamParameters output = {2};
+        PaStreamParameters input = {2, 2, paFloat32, defaultLowInputLatency, NULL};
+        PaStreamParameters output = {2, 2, paFloat32, defaultLowInputLatency, NULL};
 
         /* Open an audio I/O stream. */
         // err = Pa_OpenDefaultStream( &stream,
