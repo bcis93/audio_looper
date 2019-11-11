@@ -1,5 +1,6 @@
 #include "portaudio.h"
 #include <stdio.h>
+#include <stdint.h>
 #include <stdbool.h>
 
 // gcc test.c -lrt -lasound -lpthread -lportaudio -o test
@@ -16,7 +17,7 @@ paTestData;
 #define SECONDS (10)
 static paTestData data;
 
-static float audio[SAMPLE_RATE * SECONDS] = {};
+static int16_t audio[SAMPLE_RATE * SECONDS] = {};
 static int current_position = 0;
 static volatile int count = 0;
 static bool flag = false;
@@ -31,8 +32,8 @@ static int patestCallback( const void *inputBuffer, void *outputBuffer,
                            PaStreamCallbackFlags statusFlags,
                            void *userData )
 {
-    float* in = (float*) inputBuffer;
-    float* out = (float*) outputBuffer;
+    int16_t* in = (int16_t*) inputBuffer;
+    int16_t* out = (int16_t*) outputBuffer;
     unsigned int i;
     for( i=0; i<framesPerBuffer; i++ )
     {
@@ -84,8 +85,8 @@ int main()
         PaStream *stream;
         PaError err;
         PaDeviceIndex index = 2;
-        PaStreamParameters input = {2, 2, paFloat32, (Pa_GetDeviceInfo(2))->defaultLowInputLatency, NULL};
-        PaStreamParameters output = {2, 2, paFloat32, (Pa_GetDeviceInfo(2))->defaultLowOutputLatency, NULL};
+        PaStreamParameters input = {2, 2, paInt16, (Pa_GetDeviceInfo(2))->defaultLowInputLatency, NULL};
+        PaStreamParameters output = {2, 2, paInt16, (Pa_GetDeviceInfo(2))->defaultLowOutputLatency, NULL};
 
         /* Open an audio I/O stream. */
         // err = Pa_OpenDefaultStream( &stream,
