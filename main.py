@@ -7,11 +7,11 @@ import RPi.GPIO as GPIO
 
 REC_PLAY_BUTTON     = 16
 RESET_BUTTON        = 12
-START_STOP_BUTTON   = 8
-TRACK_1_BUTTON      = 23
-TRACK_2_BUTTON      = 18
-TRACK_3_BUTTON      = 17
-TRACK_4_BUTTON      = 14
+START_STOP_BUTTON   = 25
+TRACK_1_BUTTON      = 24
+TRACK_2_BUTTON      = 23
+TRACK_3_BUTTON      = 4
+TRACK_4_BUTTON      = 17
 
 print ("setting up...")
 
