@@ -22,10 +22,10 @@ paTestData;
 #define SAMPLE_RATE (44100)
 #define SECONDS (20)
 #define AUDIO_LENGTH (441000)
-#define CHUNK_SIZE (256)
+#define CHUNK_SIZE (512)
 static paTestData data;
 
-static int32_t audio[AUDIO_LENGTH] = {};
+static int16_t audio[AUDIO_LENGTH] = {};
 static volatile long long current_position = 0;
 static volatile long long write_position = 0;
 static volatile int count = 0;
@@ -47,8 +47,8 @@ static int patestCallback( const void *inputBuffer, void *outputBuffer,
                            PaStreamCallbackFlags statusFlags,
                            void *userData )
 {
-    int32_t* in = (int32_t*) inputBuffer;
-    int32_t* out = (int32_t*) outputBuffer;
+    int16_t* in = (int16_t*) inputBuffer;
+    int16_t* out = (int16_t*) outputBuffer;
     unsigned int i;
     //outputBuffer = (void*)&(audio[current_position]);
 	//printf("tick\r\n");
