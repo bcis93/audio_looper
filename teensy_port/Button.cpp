@@ -1,14 +1,25 @@
 #include <bcm2835.h>
 #include "Button.h"
 #include "Globals.h"
+#include <stdio.h>
 
 #define TIMEOUT_COUNT (10)
+
+bool Button::bcm2835_initialized = false;
 
 Button::Button() {
 }
 
 Button::Button(int pin)
 {
+	if(!bcm2835_initialized)
+	{
+		if (!bcm2835_init())
+		{
+			printf("bcm2835 init failed!/n");
+		}
+		bcm2835_initialized = true;
+	}
 	buttonPin = pin;
 	// Set RPI pin to be an input
     bcm2835_gpio_fsel(buttonPin, BCM2835_GPIO_FSEL_INPT);

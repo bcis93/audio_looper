@@ -12,5 +12,6 @@ private:
 	int buttonPin;
 	bool pressed;
 	int timeout;
+	static bool bcm2835_initialized;
 };
 

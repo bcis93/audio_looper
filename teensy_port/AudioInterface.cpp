@@ -13,7 +13,7 @@
 #define SAMPLE_RATE (44100)
 #define SECONDS (20)
 #define AUDIO_LENGTH (441000)
-#define CHUNK_SIZE (512)
+#define CHUNK_SIZE (2048)
 #define MAX_NUMBER_OF_TRACKS (4)
 //static paTestData data;
 
@@ -169,31 +169,31 @@ static int paCallback( const void *inputBuffer, void *outputBuffer,
     for( i=0; i<framesPerBuffer; i++ )
     {
         *out = *in;
-        for (int i = 0; i < number_of_tracks; i++)
-        {
-            if (tracks[i]->isRecording())
-            {
-                audio[i][write_position] += *in;
-            }
-
-            if (tracks[i]->isPlaying())
-            {
-                *out += audio[i][current_position];
-            }
-        }
-
-        current_position++;
-        if (current_position >= track_length || current_position >= AUDIO_LENGTH)
-        {
-            current_position = 0;
-            //count++;
-            //flag = true;
-        }
-        write_position++;
-        if (write_position >= track_length || write_position >= AUDIO_LENGTH)
-        {
-            write_position = 0;
-        }
+//        for (int i = 0; i < number_of_tracks; i++)
+//        {
+//            if (tracks[i]->isRecording())
+//            {
+//                audio[i][write_position] += *in;
+//            }
+//
+//            if (tracks[i]->isPlaying())
+//            {
+//                *out += audio[i][current_position];
+//            }
+//        }
+//
+//        current_position++;
+//        if (current_position >= track_length || current_position >= AUDIO_LENGTH)
+//        {
+//            current_position = 0;
+//            //count++;
+//            //flag = true;
+//        }
+//        write_position++;
+//        if (write_position >= track_length || write_position >= AUDIO_LENGTH)
+//        {
+//            write_position = 0;
+//        }
 
         out++;
         in++;
