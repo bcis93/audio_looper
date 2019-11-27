@@ -10,8 +10,8 @@ public:
 	virtual void tick(); //does this really need to be virtual?
 	bool fell();
 private:
-	Bounce button;
 	int buttonPin;
 	bool pressed;
+	int timeout;
 };
 

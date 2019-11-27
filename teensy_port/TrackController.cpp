@@ -1,6 +1,6 @@
-#include "Arduino.h"
 #include "TrackController.h"
 #include "Globals.h"
+#include "AudioInterface.h"
 
 
 TrackController::TrackController()
@@ -12,6 +12,7 @@ TrackController::TrackController(Track* track, Button* button) {
 	this->button = button;
 	state = idle;
   buttonPressed = false;
+  audio_add_track(track);
 }
 
 
@@ -22,15 +23,7 @@ TrackController::~TrackController()
 void TrackController::tick()
 {
 	button->tick();
-//	bool buttonPressed = button.fell();
-  if (button->fell()){
-    buttonPressed = true; //maybe just have this toggle buttonPressed? so that you can cancel if you didn't mean to press it?
-//    Serial.println("button pressed!");
-  }
-//	if (buttonPressed) {
-//		Serial.println("button pressed!");
-//	}
-
+  buttonPressed = button->fell();
 
 	//state action
 	switch (state)
@@ -38,20 +31,12 @@ void TrackController::tick()
 	case TrackController::idle:
 		break;
 	case TrackController::recording:
-		track->continueRecording();
 		break;
 	case TrackController::playing:
-//		track->continuePlaying();
-    if (masterDone){
-      track->stopPlaying();
-      track->startPlaying();
-    }
 		break;
 	case TrackController::waiting:
 		break;
 	case TrackController::overdub:
-		track->continueRecording();
-//		track->continuePlaying();
 		break;
 	default:
 		break;
@@ -63,80 +48,68 @@ void TrackController::tick()
 	{
 	case TrackController::idle:
 		if (buttonPressed && (waitingToStart == 0)) {
+      audio_set_track_position(0);
 			//start recording
       track->startRecording();
+      track->startPlaying();
 			waitingToStart++;
 			state = recording;
 //			Serial.println("state: recording");
-      buttonPressed = false;
+      //buttonPressed = false;
 		}
-		else if(buttonPressed && recordingMode && masterDone) {
+		else if(buttonPressed && recordingMode) {
 			//start recording
       track->startRecording();
+      track->startPlaying();
 			state = recording;
 //			Serial.println("state: recording");
-      buttonPressed = false;
+      //buttonPressed = false;
 		}
 		break;
 	case TrackController::recording:
-		if (buttonPressed && (waitingToStart == 1)) {
+		if (buttonPressed) {
 			//stop recording
       track->stopRecording();
-			//start playing
-      track->startPlaying();
-			waitingToStart++;
+
+      if (waitingToStart == 1)
+      {
+        audio_set_track_length();
+        waitingToStart++;
+      }
+
 			state = playing;
 //			Serial.println("state: playing");
-      buttonPressed = false;
-		}
-		else if (masterDone) {
-			//stop recording
-      track->stopRecording();
-			//start playing
-      track->startPlaying();
-			state = playing;
-//			Serial.println("state: playing");
+      //buttonPressed = false;
 		}
 		break;
 	case TrackController::playing:
-		if (buttonPressed && !recordingMode && masterDone) {
+		if (buttonPressed && !recordingMode) {
       track->stopPlaying();
 			state = waiting;
 //			Serial.println("state: waiting");
-      buttonPressed = false;
+      //buttonPressed = false;
 		}
-		if (buttonPressed && recordingMode && masterDone) {
-      track->stopPlaying();
+		if (buttonPressed && recordingMode) {
       track->startPlaying();
       track->startRecording();
 			state = overdub;
 //			Serial.println("state: overdub");
-      buttonPressed = false;
+      //buttonPressed = false;
 		}
 		break;
 	case TrackController::waiting:
-		if (buttonPressed && !recordingMode && masterDone) {
-      //should I put in a track->stopPlaying() here just in case?
+		if (buttonPressed && !recordingMode) {
       track->startPlaying();
 			state = playing;
 //			Serial.println("state: playing");
-      buttonPressed = false;
+      //buttonPressed = false;
 		}
-		if (buttonPressed && recordingMode && masterDone) {
-      //should I put in a track->stopPlaying() here just in case?
+		if (buttonPressed && recordingMode) {
       track->startPlaying();
       track->startRecording();
-			state = overdub;
-//			Serial.println("state: overdub");
-      buttonPressed = false;
-		}
-		break;
-	case TrackController::overdub:
-		if (masterDone) { //I could add a check here to potentially keep recording until the button is pressed again
-      track->stopRecording();
-      track->startPlaying();
-			state = playing;
-//			Serial.println("state: playing");
+			state = recording;
+//			Serial.println("state: recording");
+      //buttonPressed = false;
 		}
 		break;
 	default:
@@ -155,16 +128,13 @@ void TrackController::stopButton(){
     case idle:
       break;
     case recording:
-      track->abortRecord();
+      track->stopRecording();
+      track->stopPlaying();
       break;
     case playing:
       track->stopPlaying();
       break;
     case waiting:
-      break;
-    case overdub:
-      track->stopPlaying();
-      track->abortRecord();
       break;
     default:
       break;
@@ -187,13 +157,9 @@ void TrackController::startButton(){
     case waiting:
       state = waiting;
       break;
-    case overdub:
-      track->startPlaying();
-      state = playing;
-      break;
     default:
       state = idle;
-      Serial.println("Hit default case in TrackController::startButton()");
+      printf("Hit default case in TrackController::startButton()\n");
       break;
   }
 }
@@ -203,16 +169,13 @@ void TrackController::resetButton(){
     case idle:
       break;
     case recording:
-      track->abortRecord();
+      track->stopRecording();
+      track->stopPlaying();
       break;
     case playing:
       track->stopPlaying();
       break;
     case waiting:
-      break;
-    case overdub:
-      track->stopPlaying();
-      track->abortRecord();
       break;
     default:
       break;

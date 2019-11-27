@@ -11,11 +11,11 @@ Looper::Looper()
 Looper::Looper(Button* recPlay, Button* startStop, Button* resetButton)
 {
 	recPlayButton = recPlay;
-  startStopButton = startStop;
-  this->resetButton = resetButton;
+	startStopButton = startStop;
+	this->resetButton = resetButton;
 	state = idle;
 	recordingMode = true;
-  masterTrack = NULL;
+  	masterTrack = NULL;
 }
 
 
@@ -23,60 +23,56 @@ Looper::~Looper()
 {
 }
 
-//bool Looper::getWaitingToStart()
-//{
-//	return waitingToStart;
-//}
-
 void Looper::tick()
 {
-  bool recPlayButtonPressed;
-  bool startStopButtonPressed;
-  bool resetButtonPressed;
+	bool recPlayButtonPressed;
+	bool startStopButtonPressed;
+	bool resetButtonPressed;
   
 	for (int i = 0; i < trackControllers.size(); i++) {
 		trackControllers[i]->tick();
 	}
 
 	recPlayButton->tick();
-  startStopButton->tick();
-  resetButton->tick();
+	startStopButton->tick();
+	resetButton->tick();
   
 	recPlayButtonPressed = recPlayButton->fell();
-  startStopButtonPressed = startStopButton->fell();
-  resetButtonPressed = resetButton->fell();
+	startStopButtonPressed = startStopButton->fell();
+	resetButtonPressed = resetButton->fell();
 
-  if (resetButtonPressed){
-    Serial.println("Reset button pressed!");
-    resetPressed();
-    state = idle;
-    recordingMode = true;
-    masterTrack = NULL;
-    waitingToStart = 0;
-  }
+	if (resetButtonPressed){
+		printf("Reset button pressed!\n");
+		resetPressed();
+		state = idle;
+		recordingMode = true;
+		masterTrack = NULL;
+		waitingToStart = 0;
+	}
 
 
-  if (startStopButtonPressed){
-    switch (state){
-      case Looper::stopped:
-        //start playing again
-        startButton();
-        //move to normal operation
-        state = normalOperation;
-        currentPosition = 0;
-        break;
-      default:
-        stopButton();
-        state = stopped;
-        break;
-    }
-  }
+	if (startStopButtonPressed){
+		printf("Start/stop button pressed!\n");
+		switch (state){
+		case Looper::stopped:
+			//start playing again
+			startButton();
+			//move to normal operation
+			state = normalOperation;
+			//currentPosition = 0;
+			break;
+		default:
+			stopButton();
+			state = stopped;
+			break;
+		}
+	}
   
 
 	//state action
 	switch (state){
   	case Looper::idle:
-  		currentPosition = 0;
+  		//currentPosition = 0;
   		break;
   	case Looper::firstRecording:
   		break;
@@ -84,17 +80,17 @@ void Looper::tick()
   		if (masterDone) { //masterDone flag should only be true for one tick
   			masterDone = false;
   		}
-  		if (currentPosition >= trackLength) {
-  			masterDone = true;
-  			currentPosition = 0;
-  		}
-      if (recPlayButtonPressed) {
-       Serial.println("recPlay button pressed!");
-       recordingMode = !recordingMode;
-      }
+  		// if (currentPosition >= trackLength) {
+  		// 	masterDone = true;
+  		// 	currentPosition = 0;
+  		// }
+		if (recPlayButtonPressed) {
+			printf("recPlay button pressed!\n");
+			recordingMode = !recordingMode;
+		}
   		break;
     case Looper::stopped:
-      break;
+      	break;
   	default:
   		break;
 	}
@@ -107,24 +103,23 @@ void Looper::tick()
 			if (trackControllers[i]->getState() == TrackController::recording) {
 				masterTrack = trackControllers[i];
 				state = firstRecording;
-				Serial.println("looper state: firstRecording");
+				printf("looper state: firstRecording\n");
 				break;
 			}
 		}
 		break;
 	case Looper::firstRecording:
 		if (masterTrack->getState() == TrackController::playing) {
-			trackLength = currentPosition;
-			currentPosition = 0;
+			//trackLength = currentPosition;
+			//currentPosition = 0;
 			state = normalOperation;
-			Serial.println("looper state: normalOperation");
+			printf("looper state: normalOperation\n");
 		}
 		break;
 	case Looper::normalOperation:
 		break;
-  case Looper::stopped:
-    
-    break;
+  	case Looper::stopped:
+	  	break;
 	default:
 		break;
 	}

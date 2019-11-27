@@ -8,17 +8,17 @@ public:
 	TrackController();
 	TrackController(Track* track, Button* button);
 	~TrackController();
-	enum State { idle, recording, playing, waiting, overdub, stopped };
+	enum State { idle, recording, playing, waiting, stopped };
 	void tick();
 	State getState();
-  void stopButton();
-  void startButton();
-  void resetButton();
+	void stopButton();
+	void startButton();
+	void resetButton();
 private:
 	State state;
-  State lastState;
+  	State lastState;
 	Track* track;
 	Button* button;
-  bool buttonPressed;
+  	bool buttonPressed;
 };
 
