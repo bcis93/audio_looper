@@ -24,7 +24,7 @@ Button::~Button()
 }
 
 void Button::tick() {
-	if (!bcm2835_gpio_lev(PIN) && timeout == 0)
+	if (!bcm2835_gpio_lev(buttonPin) && timeout == 0)
 	{
 		pressed = true;
 		timeout = TIMEOUT_COUNT;

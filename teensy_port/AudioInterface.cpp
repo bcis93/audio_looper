@@ -1,3 +1,4 @@
+#include "AudioInterface.h"
 #include "portaudio.h"
 #include <stdio.h>
 #include <stdint.h>
@@ -14,7 +15,7 @@
 #define AUDIO_LENGTH (441000)
 #define CHUNK_SIZE (512)
 #define MAX_NUMBER_OF_TRACKS (4)
-static paTestData data;
+//static paTestData data;
 
 static Track* tracks[MAX_NUMBER_OF_TRACKS] = {};
 static int number_of_tracks = 0;
@@ -125,7 +126,7 @@ void* audio_thread(void *arg)
                                     CHUNK_SIZE,
                                     paNoFlag,
                                     paCallback,
-                                    &data );	
+                                    NULL );	
         if( err != paNoError ) printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
 
         err = Pa_StartStream( stream );
@@ -145,6 +146,7 @@ void* audio_thread(void *arg)
     }
 
     err = Pa_Terminate();
+    return NULL;
 }
 
 /* This routine will be called by the PortAudio engine when audio is needed.

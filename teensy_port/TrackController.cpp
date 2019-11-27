@@ -1,7 +1,7 @@
 #include "TrackController.h"
 #include "Globals.h"
 #include "AudioInterface.h"
-
+#include <stdio.h>
 
 TrackController::TrackController()
 {
@@ -35,8 +35,6 @@ void TrackController::tick()
 	case TrackController::playing:
 		break;
 	case TrackController::waiting:
-		break;
-	case TrackController::overdub:
 		break;
 	default:
 		break;
@@ -92,7 +90,7 @@ void TrackController::tick()
 		if (buttonPressed && recordingMode) {
       track->startPlaying();
       track->startRecording();
-			state = overdub;
+			state = recording;
 //			Serial.println("state: overdub");
       //buttonPressed = false;
 		}

@@ -1,6 +1,6 @@
 #include "Looper.h"
 #include "Globals.h"
-
+#include <stdio.h>
 
 Looper::Looper()
 {

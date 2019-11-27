@@ -42,7 +42,7 @@ TrackController track4Controller(&track4, &track4Button);
 
 Looper looper(&recPlayButton, &startStopButton, &resetButton);
 
-void main() {
+int main() {
   printf("Starting setup...\n");
 
   if (!bcm2835_init())
@@ -65,4 +65,6 @@ void main() {
   {
     looper.tick();
   }
+
+  return 0;
 }
