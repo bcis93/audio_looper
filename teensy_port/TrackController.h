@@ -20,5 +20,7 @@ private:
 	Track* track;
 	Button* button;
   	bool buttonPressed;
+	bool waiting_to_play;
+	bool waiting_to_stop;
 };
 

@@ -5,42 +5,44 @@
 #include "AudioInterface.h"
 #include <stdio.h>
 #include <bcm2835.h>
+#include <time.h>
 
 #define REC_PLAY_BUTTON     16
 #define RESET_BUTTON        12
-#define START_STOP_BUTTON   8
-#define TRACK_1_BUTTON      23
-#define TRACK_2_BUTTON      18
-#define TRACK_3_BUTTON      17
-#define TRACK_4_BUTTON      14
+#define START_STOP_BUTTON   25
+#define TRACK_1_BUTTON      24
+#define TRACK_2_BUTTON      23
+#define TRACK_3_BUTTON      4
+#define TRACK_4_BUTTON      17
 
 bool recordingMode; //true if recording mode, false if playing mode
 bool masterDone; //true every time the master track starts over. will stay true only for one tick cycle
 int waitingToStart; //0 until the first track starts recording, 1 while the first track is recording, 2 once the first track finishes
+volatile bool rollover; //set by the audio interface every time the track wraps around
 
 //Buttons
-//Button recPlayButton(REC_PLAY_BUTTON);
-//Button startStopButton(START_STOP_BUTTON);
-//Button resetButton(RESET_BUTTON);
-//Button track1Button(TRACK_1_BUTTON);
-//Button track2Button(TRACK_2_BUTTON);
-//Button track3Button(TRACK_3_BUTTON);
-//Button track4Button(TRACK_4_BUTTON);
+Button recPlayButton(REC_PLAY_BUTTON);
+Button startStopButton(START_STOP_BUTTON);
+Button resetButton(RESET_BUTTON);
+Button track1Button(TRACK_1_BUTTON);
+Button track2Button(TRACK_2_BUTTON);
+Button track3Button(TRACK_3_BUTTON);
+Button track4Button(TRACK_4_BUTTON);
 
 //Tracks
-//Track track1(1);
-//Track track2(2);
-//Track track3(3);
-//Track track4(4);
+Track track1(1);
+Track track2(2);
+Track track3(3);
+Track track4(4);
 
 //TrackControllers
-//TrackController track1Controller(&track1, &track1Button);
-//TrackController track2Controller(&track2, &track2Button);
-//TrackController track3Controller(&track3, &track3Button);
-//TrackController track4Controller(&track4, &track4Button);
+TrackController track1Controller(&track1, &track1Button);
+TrackController track2Controller(&track2, &track2Button);
+TrackController track3Controller(&track3, &track3Button);
+TrackController track4Controller(&track4, &track4Button);
 
 
-//Looper looper(&recPlayButton, &startStopButton, &resetButton);
+Looper looper(&recPlayButton, &startStopButton, &resetButton);
 
 int main() {
   printf("Starting setup...\n");
@@ -52,18 +54,26 @@ int main() {
 //  }
 
   
-  //looper.addTrack(&track1Controller);
-  //looper.addTrack(&track2Controller);
-  //looper.addTrack(&track3Controller);
-  //looper.addTrack(&track4Controller);
+  looper.addTrack(&track1Controller);
+  looper.addTrack(&track2Controller);
+  looper.addTrack(&track3Controller);
+  looper.addTrack(&track4Controller);
 
   audio_init();
+
+  struct timespec sleep_time, time2;
+  sleep_time.tv_sec = 0;
+  sleep_time.tv_nsec = 2000000L;
+
+  rollover = false;
 
   printf("Setup complete!\n");
 
   while (1)
   {
-    //looper.tick();
+	looper.tick();
+	//printf("tick\n");
+	nanosleep(&sleep_time, &time2);
   }
 
   return 0;

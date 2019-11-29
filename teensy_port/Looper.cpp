@@ -28,8 +28,16 @@ void Looper::tick()
 	bool recPlayButtonPressed;
 	bool startStopButtonPressed;
 	bool resetButtonPressed;
-  
-	for (int i = 0; i < trackControllers.size(); i++) {
+
+	//printf("tick\n");
+
+	masterDone = rollover;
+	if (rollover)
+	{
+		rollover = false;
+	}
+
+	for (unsigned i = 0; i < trackControllers.size(); i++) {
 		trackControllers[i]->tick();
 	}
 
@@ -75,7 +83,7 @@ void Looper::tick()
   		//currentPosition = 0;
   		break;
   	case Looper::firstRecording:
-  		break;
+		break;
   	case Looper::normalOperation:
   		if (masterDone) { //masterDone flag should only be true for one tick
   			masterDone = false;
@@ -99,7 +107,7 @@ void Looper::tick()
 	switch (state)
 	{
 	case Looper::idle:
-		for (int i = 0; i < trackControllers.size(); i++) {
+		for (unsigned i = 0; i < trackControllers.size(); i++) {
 			if (trackControllers[i]->getState() == TrackController::recording) {
 				masterTrack = trackControllers[i];
 				state = firstRecording;
@@ -112,6 +120,7 @@ void Looper::tick()
 		if (masterTrack->getState() == TrackController::playing) {
 			//trackLength = currentPosition;
 			//currentPosition = 0;
+			rollover = false; // make sure rollover is false before normal operation
 			state = normalOperation;
 			printf("looper state: normalOperation\n");
 		}
@@ -145,19 +154,19 @@ void Looper::addTrack(TrackController* track)
 }
 
 void Looper::stopButton(){
-  for (int i = 0; i < trackControllers.size(); i++) {
+  for (unsigned i = 0; i < trackControllers.size(); i++) {
     trackControllers[i]->stopButton();
   }
 }
 
 void Looper::startButton(){
-  for (int i = 0; i < trackControllers.size(); i++) {
+  for (unsigned i = 0; i < trackControllers.size(); i++) {
     trackControllers[i]->startButton();
   }
 }
 
 void Looper::resetPressed(){
-  for (int i = 0; i < trackControllers.size(); i++) {
+  for (unsigned i = 0; i < trackControllers.size(); i++) {
     trackControllers[i]->resetButton();
   }
 }

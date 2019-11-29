@@ -3,7 +3,7 @@
 #include "Globals.h"
 #include <stdio.h>
 
-#define TIMEOUT_COUNT (10)
+#define TIMEOUT_COUNT (250)
 
 bool Button::bcm2835_initialized = false;
 

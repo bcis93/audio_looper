@@ -12,6 +12,8 @@ TrackController::TrackController(Track* track, Button* button) {
 	this->button = button;
 	state = idle;
   buttonPressed = false;
+  waiting_to_play = false;
+  waiting_to_stop = false;
   audio_add_track(track);
 }
 
@@ -23,7 +25,7 @@ TrackController::~TrackController()
 void TrackController::tick()
 {
 	button->tick();
-  buttonPressed = button->fell();
+	buttonPressed = button->fell();
 
 	//state action
 	switch (state)
@@ -81,11 +83,14 @@ void TrackController::tick()
 		}
 		break;
 	case TrackController::playing:
-		if (buttonPressed && !recordingMode) {
-      track->stopPlaying();
+		if (waiting_to_stop && masterDone)
+		{
+			track->stopPlaying();
 			state = waiting;
-//			Serial.println("state: waiting");
-      //buttonPressed = false;
+			waiting_to_stop = false;
+		}
+		if (buttonPressed && !recordingMode) {
+			waiting_to_stop = true;
 		}
 		if (buttonPressed && recordingMode) {
       track->startPlaying();
@@ -96,11 +101,14 @@ void TrackController::tick()
 		}
 		break;
 	case TrackController::waiting:
-		if (buttonPressed && !recordingMode) {
-      track->startPlaying();
+		if (waiting_to_play && masterDone)
+		{
+			track->startPlaying();
 			state = playing;
-//			Serial.println("state: playing");
-      //buttonPressed = false;
+			waiting_to_play = false;
+		}
+		if (buttonPressed && !recordingMode) {
+			waiting_to_play = true;
 		}
 		if (buttonPressed && recordingMode) {
       track->startPlaying();
