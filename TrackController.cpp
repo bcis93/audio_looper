@@ -7,9 +7,11 @@ TrackController::TrackController()
 {
 }
 
-TrackController::TrackController(Track* track, Button* button) {
+TrackController::TrackController(Track* track, Button* button, Led* red, Led* green) {
 	this->track = track;
 	this->button = button;
+	led_red = red;
+	led_green = green;
 	state = idle;
   buttonPressed = false;
   waiting_to_play = false;
@@ -26,6 +28,9 @@ void TrackController::tick()
 {
 	button->tick();
 	buttonPressed = button->fell();
+
+	led_red->tick();
+	led_green->tick();
 
 	//state action
 	switch (state)
@@ -52,6 +57,8 @@ void TrackController::tick()
 			//start recording
       track->startRecording();
       track->startPlaying();
+	led_red->turnOn();
+	led_green->turnOn();
 			waitingToStart++;
 			state = recording;
 //			Serial.println("state: recording");
@@ -61,6 +68,9 @@ void TrackController::tick()
 			//start recording
       track->startRecording();
       track->startPlaying();
+	led_red->turnOn();
+//	sleep(1);
+	led_green->turnOn();
 			state = recording;
 //			Serial.println("state: recording");
       //buttonPressed = false;
@@ -70,6 +80,7 @@ void TrackController::tick()
 		if (buttonPressed) {
 			//stop recording
       track->stopRecording();
+	led_red->turnOff();
 
       if (waitingToStart == 1)
       {
@@ -86,15 +97,20 @@ void TrackController::tick()
 		if (waiting_to_stop && masterDone)
 		{
 			track->stopPlaying();
+			led_green->turnOff();
 			state = waiting;
 			waiting_to_stop = false;
 		}
 		if (buttonPressed && !recordingMode) {
+			led_green->flash();
 			waiting_to_stop = true;
 		}
 		if (buttonPressed && recordingMode) {
-      track->startPlaying();
+      track->startPlaying(); // I think this can be removed...
       track->startRecording();
+	led_green->turnOn();
+//	sleep(1);
+	led_red->turnOn();
 			state = recording;
 //			Serial.println("state: overdub");
       //buttonPressed = false;
@@ -104,15 +120,20 @@ void TrackController::tick()
 		if (waiting_to_play && masterDone)
 		{
 			track->startPlaying();
+			led_green->turnOn();
 			state = playing;
 			waiting_to_play = false;
 		}
 		if (buttonPressed && !recordingMode) {
+			led_green->flash();
 			waiting_to_play = true;
 		}
 		if (buttonPressed && recordingMode) {
       track->startPlaying();
       track->startRecording();
+	led_red->turnOn();
+//	sleep(1);
+	led_green->turnOn();
 			state = recording;
 //			Serial.println("state: recording");
       //buttonPressed = false;
@@ -136,9 +157,12 @@ void TrackController::stopButton(){
     case recording:
       track->stopRecording();
       track->stopPlaying();
+	led_red->turnOff();
+	led_green->turnOff();
       break;
     case playing:
       track->stopPlaying();
+	led_green->turnOff();
       break;
     case waiting:
       break;
@@ -158,6 +182,7 @@ void TrackController::startButton(){
       break;
     case playing:
       track->startPlaying();
+	led_green->turnOn();
       state = playing;
       break;
     case waiting:
@@ -177,9 +202,12 @@ void TrackController::resetButton(){
     case recording:
       track->stopRecording();
       track->stopPlaying();
+	led_red->turnOff();
+	led_green->turnOff();
       break;
     case playing:
       track->stopPlaying();
+	led_green->turnOff();
       break;
     case waiting:
       break;

@@ -58,33 +58,35 @@ int main(int argc, char **argv) {
 
 	for (;;) {
 
-		pwmled.SetRgb(0, (uint8_t)0xFF, 0xFF, 0);
-		pwmled.Update();
-		sleep(1);
-		pwmled.SetRgb(1, (uint8_t)0xFF, 0xFF, 0);
-		pwmled.Update();
-		sleep(1);
-		pwmled.SetRgb(0, (uint8_t)0, 0, 0);
-		pwmled.Update();
-		sleep(1);
-		pwmled.SetRgb(1, (uint8_t)0, 0, 0);
-		pwmled.Update();
-		sleep(1);
+//		pwmled.SetRgb(0, (uint8_t)0xFF, 0xFF, 0);
+//		pwmled.Update();
+//		sleep(1);
+//		pwmled.SetRgb(1, (uint8_t)0xFF, 0xFF, 0);
+//		pwmled.Update();
+//		sleep(1);
+//		pwmled.SetRgb(0, (uint8_t)0, 0, 0);
+//		pwmled.Update();
+//		sleep(1);
+//		pwmled.SetRgb(1, (uint8_t)0, 0, 0);
+//		pwmled.Update();
+//		sleep(1);
 
 
-//		for (int i = 0; i < 5; i++)
-//		{
-//			pwmled.Set(i, (uint8_t)0xFF);
-//			pwmled.Update();
-//			sleep(1);
-//		}
-//
-//		for (int i = 0; i < 5; i++)
-//		{
-//			pwmled.Set(i, (uint8_t)0);
-//			pwmled.Update();
-//			sleep(1);
-//		}
+		for (int i = 0; i <12; i++)
+		{
+			pwmled.Set(i, (uint8_t)0xFF);
+			printf("set %d high\n", i);
+			pwmled.Update();
+			sleep(1);
+		}
+
+		for (int i = 0; i < 12; i++)
+		{
+			pwmled.Set(i, (uint8_t)0);
+			printf("set %d low\n", i);
+			pwmled.Update();
+			sleep(1);
+		}
 	}
 }
 

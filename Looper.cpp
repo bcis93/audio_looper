@@ -8,13 +8,16 @@ Looper::Looper()
 	recordingMode = true;
 }
 
-Looper::Looper(Button* recPlay, Button* startStop, Button* resetButton)
+Looper::Looper(Button* recPlay, Button* startStop, Button* resetButton, Led* red_led, Led* green_led)
 {
 	recPlayButton = recPlay;
 	startStopButton = startStop;
 	this->resetButton = resetButton;
+	this->red_led = red_led;
+	this->green_led = green_led;
 	state = idle;
 	recordingMode = true;
+//	red_led->turnOn();
   	masterTrack = NULL;
 }
 
@@ -95,6 +98,16 @@ void Looper::tick()
 		if (recPlayButtonPressed) {
 			printf("recPlay button pressed!\n");
 			recordingMode = !recordingMode;
+			if (recordingMode)
+			{
+				green_led->turnOff();
+				red_led->turnOn();
+			}
+			else
+			{
+				red_led->turnOff();
+				green_led->turnOn();
+			}
 		}
   		break;
     case Looper::stopped:
