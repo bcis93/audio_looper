@@ -1,6 +1,6 @@
 /**
  * @file hal_spi.h
- * 
+ *
  * This file was found on github in a library provided by Arjan van Vught. It
  * is a header file that enables SPI on the raspberry pi zero. Source code here:
  * https://github.com/vanvught/rpidmx512/blob/master/lib-hal/include/hal_spi.h
@@ -33,31 +33,31 @@
 #define HAL_SPI_H_
 
 #if defined(__linux__)
- #include "bcm2835.h"
+#include "bcm2835.h"
 #elif defined(H3)
- #include "h3_spi.h"
+#include "h3_spi.h"
 #else
- #include "bcm2835_spi.h"
+#include "bcm2835_spi.h"
 #endif
 
 #if defined(H3)
- #define SPI_BIT_ORDER_MSBFIRST	H3_SPI_BIT_ORDER_MSBFIRST
- #define SPI_MODE0				H3_SPI_MODE0
- #define SPI_MODE3				H3_SPI_MODE3
- #define SPI_CS0				H3_SPI_CS0
- #define SPI_CS_NONE			H3_SPI_CS_NONE
+#define SPI_BIT_ORDER_MSBFIRST	H3_SPI_BIT_ORDER_MSBFIRST
+#define SPI_MODE0				H3_SPI_MODE0
+#define SPI_MODE3				H3_SPI_MODE3
+#define SPI_CS0				H3_SPI_CS0
+#define SPI_CS_NONE			H3_SPI_CS_NONE
 #else
- #define SPI_BIT_ORDER_MSBFIRST	BCM2835_SPI_BIT_ORDER_MSBFIRST
- #define SPI_MODE0				BCM2835_SPI_MODE0
- #define SPI_MODE3				BCM2835_SPI_MODE3
- #define SPI_CS0				BCM2835_SPI_CS0
- #define SPI_CS_NONE			BCM2835_SPI_CS_NONE
+#define SPI_BIT_ORDER_MSBFIRST	BCM2835_SPI_BIT_ORDER_MSBFIRST
+#define SPI_MODE0				BCM2835_SPI_MODE0
+#define SPI_MODE3				BCM2835_SPI_MODE3
+#define SPI_CS0				BCM2835_SPI_CS0
+#define SPI_CS_NONE			BCM2835_SPI_CS_NONE
 #endif
 
 #if defined(H3)
- #define FUNC_PREFIX(x) h3_##x
+#define FUNC_PREFIX(x) h3_##x
 #else
- #define FUNC_PREFIX(x) bcm2835_##x
+#define FUNC_PREFIX(x) bcm2835_##x
 #endif
 
 #endif /* HAL_SPI_H_ */

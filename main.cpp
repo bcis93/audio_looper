@@ -1,12 +1,12 @@
 /**
  * @file main.cpp
- * 
+ *
  * @brief main for looper program
- * 
+ *
  * This file sets up the looper, tracks, audio interface, buttons, etc, then
  * enters a while(1) loop to periodically run state machines and check for
  * button presses
- * 
+ *
  * @author Bryan Cisneros
  */
 
@@ -74,43 +74,44 @@ TrackController track4Controller(&track4, &track4Button, &red4, &green4);
 // Looper
 Looper looper(&recPlayButton, &startStopButton, &resetButton, &record_led, &play_led);
 
-int main() {
-  printf("Starting setup...\n");
+int main()
+{
+    printf("Starting setup...\n");
 
-  // Add tracks to the looper
-  looper.addTrack(&track1Controller);
-  looper.addTrack(&track2Controller);
-  looper.addTrack(&track3Controller);
-  looper.addTrack(&track4Controller);
+    // Add tracks to the looper
+    looper.addTrack(&track1Controller);
+    looper.addTrack(&track2Controller);
+    looper.addTrack(&track3Controller);
+    looper.addTrack(&track4Controller);
 
-  // Initialize the audio and LED interfaces
-  audio_init();
-  LedInterface_init();
+    // Initialize the audio and LED interfaces
+    audio_init();
+    LedInterface_init();
 
-  // Set up a struct to sleep between state machine ticks
-  struct timespec sleep_time, time2;
-  sleep_time.tv_sec = 0;
-  sleep_time.tv_nsec = TWO_MS;
+    // Set up a struct to sleep between state machine ticks
+    struct timespec sleep_time, time2;
+    sleep_time.tv_sec = 0;
+    sleep_time.tv_nsec = TWO_MS;
 
-  rollover = false; // make sure rollover is initialized (to false)
+    rollover = false; // make sure rollover is initialized (to false)
 
-  //turn on the record LED to signify that setup is complete!
-  record_led.turnOn();
-  printf("Setup complete!\n");
+    //turn on the record LED to signify that setup is complete!
+    record_led.turnOn();
+    printf("Setup complete!\n");
 
-  while (1)
-  {
-    // Run the state machine, then sleep for ~2ms. The timing here is very soft.
-    // As long as we're running the state machine every few ms (or somewhat
-    // close to it), we'll be able to detect button presses and update our state
-    // machines fast enough for acceptable performance. The audio handling is
-    // all done in a separate, high-priority, real-time thread, so there is
-    // nothing critical depending on a tight 2ms timing. Extra delays will occur
-    // occasionaly as the OS is running other tasks, but this is not noticable
-    // to the user.
-    looper.tick();
-    nanosleep(&sleep_time, &time2);
-  }
+    while (1)
+    {
+        // Run the state machine, then sleep for ~2ms. The timing here is very soft.
+        // As long as we're running the state machine every few ms (or somewhat
+        // close to it), we'll be able to detect button presses and update our state
+        // machines fast enough for acceptable performance. The audio handling is
+        // all done in a separate, high-priority, real-time thread, so there is
+        // nothing critical depending on a tight 2ms timing. Extra delays will occur
+        // occasionaly as the OS is running other tasks, but this is not noticable
+        // to the user.
+        looper.tick();
+        nanosleep(&sleep_time, &time2);
+    }
 
-  return 0;
+    return 0;
 }

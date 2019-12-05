@@ -1,10 +1,10 @@
 /**
  * @file Globals.h
- * 
+ *
  * @brief Global variables
- * 
+ *
  * This file contains variables that need to be seen by many modules
- * 
+ *
  * @author Bryan Cisneros
  */
 

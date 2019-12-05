@@ -1,6 +1,6 @@
 /**
  * @file tlc59711.h
- * 
+ *
  * This file was found on github in a library provided by Arjan van Vught. It
  * provides an interface to interact with the TLC59711 LED driver. A link to the
  * repository is here:
@@ -47,60 +47,61 @@
 
 #include <stdint.h>
 
-class TLC59711 {
+class TLC59711
+{
 public:
-	TLC59711(uint8_t nBoards = 1, uint32_t nSpiSpeedHz = TLC59711_SPI_SPEED_DEFAULT);
-	~TLC59711(void);
+    TLC59711(uint8_t nBoards = 1, uint32_t nSpiSpeedHz = TLC59711_SPI_SPEED_DEFAULT);
+    ~TLC59711(void);
 
-	int GetBlank(void) const;
-	void SetBlank(bool pBlank = false);
+    int GetBlank(void) const;
+    void SetBlank(bool pBlank = false);
 
-	int GetDisplayRepeat(void) const;
-	void SetDisplayRepeat(bool pDisplayRepeat = true);
+    int GetDisplayRepeat(void) const;
+    void SetDisplayRepeat(bool pDisplayRepeat = true);
 
-	int GetDisplayTimingReset(void) const;
-	void SetDisplayTimingReset(bool pDisplayTimingReset = true);
+    int GetDisplayTimingReset(void) const;
+    void SetDisplayTimingReset(bool pDisplayTimingReset = true);
 
-	int GetExternalClock(void) const;
-	void SetExternalClock(bool pExternalClock = false);
+    int GetExternalClock(void) const;
+    void SetExternalClock(bool pExternalClock = false);
 
-	int GetOnOffTiming(void) const;
-	void SetOnOffTiming(bool pOnOffTiming = false);
+    int GetOnOffTiming(void) const;
+    void SetOnOffTiming(bool pOnOffTiming = false);
 
-	uint8_t GetGbcRed(void) const;
-	void SetGbcRed(uint8_t nValue = 0x7F);
+    uint8_t GetGbcRed(void) const;
+    void SetGbcRed(uint8_t nValue = 0x7F);
 
-	uint8_t GetGbcGreen(void) const;
-	void SetGbcGreen(uint8_t nValue = 0x7F);
+    uint8_t GetGbcGreen(void) const;
+    void SetGbcGreen(uint8_t nValue = 0x7F);
 
-	uint8_t GetGbcBlue(void) const;
-	void SetGbcBlue(uint8_t nValue = 0x7F);
+    uint8_t GetGbcBlue(void) const;
+    void SetGbcBlue(uint8_t nValue = 0x7F);
 
-	bool Get(uint8_t nChannel, uint16_t &nValue);
-	void Set(uint8_t nChannel, uint16_t nValue);
+    bool Get(uint8_t nChannel, uint16_t &nValue);
+    void Set(uint8_t nChannel, uint16_t nValue);
 
-	void Set(uint8_t nChannel, uint8_t nValue);
+    void Set(uint8_t nChannel, uint8_t nValue);
 
-	bool GetRgb(uint8_t nOut, uint16_t &nRed, uint16_t &nGreen, uint16_t &nBlue);
-	void SetRgb(uint8_t nOut, uint16_t nRed, uint16_t nGreen, uint16_t nBlue);
+    bool GetRgb(uint8_t nOut, uint16_t &nRed, uint16_t &nGreen, uint16_t &nBlue);
+    void SetRgb(uint8_t nOut, uint16_t nRed, uint16_t nGreen, uint16_t nBlue);
 
-	void SetRgb(uint8_t nOut, uint8_t nRed, uint8_t nGreen, uint8_t nBlue);
+    void SetRgb(uint8_t nOut, uint8_t nRed, uint8_t nGreen, uint8_t nBlue);
 
-	void Update(void);
-	void Blackout(void);
+    void Update(void);
+    void Blackout(void);
 
-	void Dump(void);
-
-private:
-	void UpdateFirst32(void);
+    void Dump(void);
 
 private:
-	uint8_t m_nBoards;
-	uint32_t m_nSpiSpeedHz;
-	uint32_t m_nFirst32;
-	uint16_t *m_pBuffer;
-	uint16_t *m_pBufferBlackout;
-	uint32_t m_nBufSize;
+    void UpdateFirst32(void);
+
+private:
+    uint8_t m_nBoards;
+    uint32_t m_nSpiSpeedHz;
+    uint32_t m_nFirst32;
+    uint16_t *m_pBuffer;
+    uint16_t *m_pBufferBlackout;
+    uint32_t m_nBufSize;
 };
 
 #endif /* TLC59711_H_ */

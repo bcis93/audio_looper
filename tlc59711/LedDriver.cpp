@@ -1,10 +1,10 @@
 /**
  * @file LedDriver.cpp
- * 
+ *
  * @brief LED driver
- * 
+ *
  * This file updates the LEDs based on what is stored in shared memory
- * 
+ *
  * @author Bryan Cisneros
  */
 
@@ -21,8 +21,8 @@
 
 typedef struct
 {
-	bool update;
-	uint8_t led_values[12];
+    bool update;
+    uint8_t led_values[12];
 } shared_leds_t;
 
 void* shared_pointer = NULL;
@@ -35,57 +35,57 @@ TLC59711 leds;
 
 void LedDriver_init(void)
 {
-	bcm2835_init();
+    bcm2835_init();
 
-	// Set the brightness of the LEDs
-	leds.SetGbcRed(BRIGHTNESS);
-	leds.SetGbcGreen(BRIGHTNESS);
-	leds.SetGbcBlue(BRIGHTNESS);
+    // Set the brightness of the LEDs
+    leds.SetGbcRed(BRIGHTNESS);
+    leds.SetGbcGreen(BRIGHTNESS);
+    leds.SetGbcBlue(BRIGHTNESS);
 
-	// Turn off all LEDs
-	for (int i = 0; i < TLC59711_OUT_CHANNELS; i++)
-	{
-		leds.Set(i, (uint8_t)OFF);
-	}
-	leds.Update();
+    // Turn off all LEDs
+    for (int i = 0; i < TLC59711_OUT_CHANNELS; i++)
+    {
+        leds.Set(i, (uint8_t)OFF);
+    }
+    leds.Update();
 
-	// Get or create shared memory
-	shared_leds_id= shmget((key_t)1234, sizeof(shared_leds_t), 0666 | IPC_CREAT);
-	if (shared_leds_id == -1)
-	{
-		printf("shmget() failed!\n");
-	}
+    // Get or create shared memory
+    shared_leds_id= shmget((key_t)1234, sizeof(shared_leds_t), 0666 | IPC_CREAT);
+    if (shared_leds_id == -1)
+    {
+        printf("shmget() failed!\n");
+    }
 
-	shared_pointer = shmat(shared_leds_id, (void*)0, 0);
-	if (shared_pointer == (void*)-1)
-	{
-		printf("shmat() failed!\n");
-	}
+    shared_pointer = shmat(shared_leds_id, (void*)0, 0);
+    if (shared_pointer == (void*)-1)
+    {
+        printf("shmat() failed!\n");
+    }
 
-	shared_leds = (shared_leds_t*)shared_pointer;
+    shared_leds = (shared_leds_t*)shared_pointer;
 
-	// Initialize shared memory. Start with all the LEDs off and the update flag false
-	shared_leds->update = false;
-	for (int i = 0; i < TLC59711_OUT_CHANNELS; i++)
-	{
-		shared_leds->led_values[i] = 0;
-	}
+    // Initialize shared memory. Start with all the LEDs off and the update flag false
+    shared_leds->update = false;
+    for (int i = 0; i < TLC59711_OUT_CHANNELS; i++)
+    {
+        shared_leds->led_values[i] = 0;
+    }
 }
 
 void LedDriver_checkForUpdates(void)
 {
-	if (shared_leds->update)
-	{
-		// Quickly copy the values into a local array.
-		// This will minimize the time for a potential shared data problem
-		memcpy(local_led_values, shared_leds->led_values, 12);
-		shared_leds->update = false;
+    if (shared_leds->update)
+    {
+        // Quickly copy the values into a local array.
+        // This will minimize the time for a potential shared data problem
+        memcpy(local_led_values, shared_leds->led_values, 12);
+        shared_leds->update = false;
 
-		// Update the LEDs with the new values
-		for (int i = 0; i < TLC59711_OUT_CHANNELS; i++)
-		{
-			leds.Set(i, local_led_values[i]);
-		}
-		leds.Update();
-	}
+        // Update the LEDs with the new values
+        for (int i = 0; i < TLC59711_OUT_CHANNELS; i++)
+        {
+            leds.Set(i, local_led_values[i]);
+        }
+        leds.Update();
+    }
 }

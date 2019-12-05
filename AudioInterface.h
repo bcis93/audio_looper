@@ -1,10 +1,10 @@
 /**
  * @file AudioInterface.h
- * 
+ *
  * @brief Audio interface
- * 
+ *
  * This file provides the API to send and receives data from the Fe-Pi audio board.
- * 
+ *
  * @author Bryan Cisneros
  */
 

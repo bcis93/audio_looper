@@ -1,10 +1,10 @@
 /**
  * @file Led.cpp
- * 
+ *
  * @brief Led clas
- * 
+ *
  * This file implements the Led class
- * 
+ *
  * @author Bryan Cisneros
  */
 
@@ -19,7 +19,7 @@ Led::Led(int channel)
 {
     this->channel = channel;
     count = 0;
-    
+
     // initialize to off and not flashing
     flashing = false;
     led_on = false;

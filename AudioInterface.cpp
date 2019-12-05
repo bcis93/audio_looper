@@ -1,11 +1,11 @@
 /**
  * @file AudioInterface.cpp
- * 
+ *
  * @brief Audio interface
- * 
+ *
  * This file sends and receives data from the Fe-Pi audio board. It also records
  * audio and plays it back, depending on which tracks have flags set.
- * 
+ *
  * @author Bryan Cisneros
  */
 
@@ -40,10 +40,10 @@ static volatile long track_length = AUDIO_LENGTH;
 void* audio_thread(void *arg);
 
 static int paCallback( const void *inputBuffer, void *outputBuffer,
-                           unsigned long framesPerBuffer,
-                           const PaStreamCallbackTimeInfo* timeInfo,
-                           PaStreamCallbackFlags statusFlags,
-                           void *userData );
+                       unsigned long framesPerBuffer,
+                       const PaStreamCallbackTimeInfo* timeInfo,
+                       PaStreamCallbackFlags statusFlags,
+                       void *userData );
 
 
 
@@ -58,7 +58,7 @@ void audio_add_track(Track* track)
     {
         printf("Max number of tracks!\n");
     }
-    
+
 }
 
 void audio_set_track_length(void)
@@ -82,8 +82,8 @@ void audio_set_track_position(int position)
 void audio_init(void)
 {
     // Create and start the audio thread!
-    pthread_t audio_thread_id; 
-    pthread_create(&audio_thread_id, NULL, audio_thread, NULL);    
+    pthread_t audio_thread_id;
+    pthread_create(&audio_thread_id, NULL, audio_thread, NULL);
 }
 
 
@@ -107,9 +107,9 @@ void* audio_thread(void *arg)
         PaDeviceIndex index = DEVICE_INDEX;
         PaStreamParameters input = {index, CHANNELS, paInt16, (Pa_GetDeviceInfo(index))->defaultLowInputLatency, NULL};
         PaStreamParameters output = {index, CHANNELS, paInt16, (Pa_GetDeviceInfo(index))->defaultLowOutputLatency, NULL};
-        
+
         // Open the stream
-        err = Pa_OpenStream	(&stream, &input, &output, SAMPLE_RATE, CHUNK_SIZE, paNoFlag, paCallback, NULL);	
+        err = Pa_OpenStream	(&stream, &input, &output, SAMPLE_RATE, CHUNK_SIZE, paNoFlag, paCallback, NULL);
         if( err != paNoError )
         {
             printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
@@ -150,20 +150,20 @@ void* audio_thread(void *arg)
 
 // This routine will be called by the PortAudio engine when audio is needed.
 static int paCallback( const void *inputBuffer, void *outputBuffer,
-                           unsigned long framesPerBuffer,
-                           const PaStreamCallbackTimeInfo* timeInfo,
-                           PaStreamCallbackFlags statusFlags,
-                           void *userData )
+                       unsigned long framesPerBuffer,
+                       const PaStreamCallbackTimeInfo* timeInfo,
+                       PaStreamCallbackFlags statusFlags,
+                       void *userData )
 {
     int16_t* in = (int16_t*) inputBuffer;
     int16_t* out = (int16_t*) outputBuffer;
     unsigned int i;
-    
+
     // For each frame in the input buffer
     for( i=0; i<framesPerBuffer; i++ )
     {
         // Always pass the incoming audio through to the output
-        *out = *in; 
+        *out = *in;
 
         // check each track. If the track is recording, add the current audio
         // to its audio buffer. If the track is playing, add the audio in its
