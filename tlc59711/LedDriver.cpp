@@ -1,3 +1,13 @@
+/**
+ * @file LedDriver.cpp
+ * 
+ * @brief LED driver
+ * 
+ * This file updates the LEDs based on what is stored in shared memory
+ * 
+ * @author Bryan Cisneros
+ */
+
 #include "LedDriver.h"
 #include "tlc59711.h"
 #include "bcm2835.h"
@@ -27,16 +37,19 @@ void LedDriver_init(void)
 {
 	bcm2835_init();
 
-	printf("setting brightness\n");
+	// Set the brightness of the LEDs
 	leds.SetGbcRed(BRIGHTNESS);
 	leds.SetGbcGreen(BRIGHTNESS);
 	leds.SetGbcBlue(BRIGHTNESS);
+
+	// Turn off all LEDs
 	for (int i = 0; i < TLC59711_OUT_CHANNELS; i++)
 	{
 		leds.Set(i, (uint8_t)OFF);
 	}
 	leds.Update();
 
+	// Get or create shared memory
 	shared_leds_id= shmget((key_t)1234, sizeof(shared_leds_t), 0666 | IPC_CREAT);
 	if (shared_leds_id == -1)
 	{
@@ -50,6 +63,8 @@ void LedDriver_init(void)
 	}
 
 	shared_leds = (shared_leds_t*)shared_pointer;
+
+	// Initialize shared memory. Start with all the LEDs off and the update flag false
 	shared_leds->update = false;
 	for (int i = 0; i < TLC59711_OUT_CHANNELS; i++)
 	{
@@ -61,14 +76,16 @@ void LedDriver_checkForUpdates(void)
 {
 	if (shared_leds->update)
 	{
+		// Quickly copy the values into a local array.
+		// This will minimize the time for a potential shared data problem
 		memcpy(local_led_values, shared_leds->led_values, 12);
 		shared_leds->update = false;
+
+		// Update the LEDs with the new values
 		for (int i = 0; i < TLC59711_OUT_CHANNELS; i++)
 		{
 			leds.Set(i, local_led_values[i]);
-//		 	printf("%d, ", local_led_values[i]);
 		}
-//		printf("\n");
 		leds.Update();
 	}
 }

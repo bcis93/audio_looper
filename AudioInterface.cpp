@@ -1,3 +1,14 @@
+/**
+ * @file AudioInterface.cpp
+ * 
+ * @brief Audio interface
+ * 
+ * This file sends and receives data from the Fe-Pi audio board. It also records
+ * audio and plays it back, depending on which tracks have flags set.
+ * 
+ * @author Bryan Cisneros
+ */
+
 #include "AudioInterface.h"
 #include "portaudio.h"
 #include <stdio.h>
@@ -7,23 +18,23 @@
 #include <pthread.h>
 #include "Globals.h"
 
-// gcc test.c -lrt -lasound -lpthread -lportaudio -o test
-
-
 #define SAMPLE_RATE (44100)
-#define SECONDS (20)
-#define AUDIO_LENGTH (441000)
-#define CHUNK_SIZE (512)
-#define MAX_NUMBER_OF_TRACKS (4)
-//static paTestData data;
+#define AUDIO_LENGTH (441000) // The max length of audio we can record is 10 seconds
+#define CHUNK_SIZE (512) // Handle audio in 512 sample chunks
+#define MAX_NUMBER_OF_TRACKS (4) // Maximum number of tracks that are supported
+#define CHANNELS (1) // Mono audio
 
+#define AUDIO_THREAD_PRIORITY (80)
+#define DEVICE_INDEX (2)
+
+// Variables related to audio tracks
 static Track* tracks[MAX_NUMBER_OF_TRACKS] = {};
 static int number_of_tracks = 0;
 
+// Array and variables to store and access audio
 static int16_t audio[MAX_NUMBER_OF_TRACKS][AUDIO_LENGTH] = {};
 static volatile long current_position = 0;
 static volatile long write_position = 0;
-static volatile int first_recording = 0;
 static volatile long track_length = AUDIO_LENGTH;
 
 void* audio_thread(void *arg);
@@ -58,7 +69,10 @@ void audio_set_track_length(void)
 void audio_set_track_position(int position)
 {
     current_position = position;
-    write_position = current_position - CHUNK_SIZE;// * 2;
+
+    // write position should be one chunk before current, but make sure it's
+    // not negative
+    write_position = current_position - CHUNK_SIZE;
     if (write_position < 0)
     {
         write_position += track_length;
@@ -67,6 +81,7 @@ void audio_set_track_position(int position)
 
 void audio_init(void)
 {
+    // Create and start the audio thread!
     pthread_t audio_thread_id; 
     pthread_create(&audio_thread_id, NULL, audio_thread, NULL);    
 }
@@ -74,9 +89,11 @@ void audio_init(void)
 
 void* audio_thread(void *arg)
 {
-    const struct sched_param priority = {80};
+    // Set this thread as a high priority real time thread
+    const struct sched_param priority = {AUDIO_THREAD_PRIORITY};
     sched_setscheduler(0, SCHED_FIFO, &priority);
 
+    // Initialize PortAudio
     PaError err = Pa_Initialize();
     if( err != paNoError )
     {
@@ -84,75 +101,54 @@ void* audio_thread(void *arg)
     }
     else
     {
-        int numDevices;
-        numDevices = Pa_GetDeviceCount();
-        if( numDevices < 0 )
-        {
-            printf( "ERROR: Pa_CountDevices returned 0x%x\n", numDevices );
-            err = numDevices;
-        }
-        else
-        {
-            const   PaDeviceInfo *deviceInfo;
-            int i;
-            for( i=0; i<numDevices; i++ )
-            {
-                deviceInfo = Pa_GetDeviceInfo( i );
-                printf("name: %s\r\n", deviceInfo->name);
-		printf("hostApi: %d\r\n", deviceInfo->hostApi);
-		printf("maxInputChannels: %d\r\n", deviceInfo->maxInputChannels);
-		printf("maxOutputChannels: %d\r\n", deviceInfo->maxOutputChannels);
-		printf("defaultLowInputLatency: %f\r\n", deviceInfo->defaultLowInputLatency);
-		printf("defaultLowOutputLatency: %f\r\n", deviceInfo->defaultLowOutputLatency);
-		printf("defaultHighInputLatency: %f\r\n", deviceInfo->defaultHighInputLatency);
-		printf("defaultHighOutputLatency: %f\r\n", deviceInfo->defaultHighOutputLatency);
-		printf("defaultSampleRate: %f\r\n\n", deviceInfo->defaultSampleRate);		
-            }
-        }
-        
-
-
+        // Create a PortAudio stream
         PaStream *stream;
         PaError err;
-        PaDeviceIndex index = 2;
-        PaStreamParameters input = {index, 1, paInt16, (Pa_GetDeviceInfo(index))->defaultLowInputLatency, NULL};
-        PaStreamParameters output = {index, 1, paInt16, (Pa_GetDeviceInfo(index))->defaultLowOutputLatency, NULL};
+        PaDeviceIndex index = DEVICE_INDEX;
+        PaStreamParameters input = {index, CHANNELS, paInt16, (Pa_GetDeviceInfo(index))->defaultLowInputLatency, NULL};
+        PaStreamParameters output = {index, CHANNELS, paInt16, (Pa_GetDeviceInfo(index))->defaultLowOutputLatency, NULL};
+        
+        // Open the stream
+        err = Pa_OpenStream	(&stream, &input, &output, SAMPLE_RATE, CHUNK_SIZE, paNoFlag, paCallback, NULL);	
+        if( err != paNoError )
+        {
+            printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
+        }
 
-                                                    
-        err = Pa_OpenStream	(	&stream,
-                                    &input,
-                                    &output,
-                                    SAMPLE_RATE,
-                                    CHUNK_SIZE,
-                                    paNoFlag,
-                                    paCallback,
-                                    NULL );	
-        if( err != paNoError ) printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
-
+        // Start the stream
         err = Pa_StartStream( stream );
-        if( err != paNoError ) printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
+        if( err != paNoError )
+        {
+            printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
+        }
 
+        // now that the stream is started, we don't need to do anything else in
+        // this thread, other than keep the thread alive, so we'll just sit in a
+        // while(1) and just yield anytime this thread may become active. All of
+        // the audio processing will be handled in the callback function.
         while(1)
         {
             sched_yield();
         }
 
         err = Pa_StopStream( stream );
-        if( err != paNoError ) printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
+        if( err != paNoError )
+        {
+            printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
+        }
 
         err = Pa_CloseStream( stream );
-        if( err != paNoError ) printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
-
+        if( err != paNoError )
+        {
+            printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
+        }
     }
 
     err = Pa_Terminate();
     return NULL;
 }
 
-/* This routine will be called by the PortAudio engine when audio is needed.
-   It may called at interrupt level on some machines so don't do anything
-   that could mess up the system like calling malloc() or free().
-*/ 
+// This routine will be called by the PortAudio engine when audio is needed.
 static int paCallback( const void *inputBuffer, void *outputBuffer,
                            unsigned long framesPerBuffer,
                            const PaStreamCallbackTimeInfo* timeInfo,
@@ -162,13 +158,16 @@ static int paCallback( const void *inputBuffer, void *outputBuffer,
     int16_t* in = (int16_t*) inputBuffer;
     int16_t* out = (int16_t*) outputBuffer;
     unsigned int i;
-    //outputBuffer = (void*)&(audio[current_position]);
-	//printf("tick\r\n");
     
-
+    // For each frame in the input buffer
     for( i=0; i<framesPerBuffer; i++ )
     {
-        *out = *in;
+        // Always pass the incoming audio through to the output
+        *out = *in; 
+
+        // check each track. If the track is recording, add the current audio
+        // to its audio buffer. If the track is playing, add the audio in its
+        // buffer to the output
         for (int i = 0; i < number_of_tracks; i++)
         {
             if (tracks[i]->isRecording())
@@ -182,20 +181,23 @@ static int paCallback( const void *inputBuffer, void *outputBuffer,
             }
         }
 
+        // Update the current position. If it has wrapped around, reset to zero
+        // and set the 'rollover' flag (used by the main state machine)
         current_position++;
         if (current_position >= track_length || current_position >= AUDIO_LENGTH)
         {
             current_position = 0;
-		rollover = true;
-            //count++;
-            //flag = true;
+            rollover = true;
         }
+
+        // Update the write position, and reset to 0 if necessary
         write_position++;
         if (write_position >= track_length || write_position >= AUDIO_LENGTH)
         {
             write_position = 0;
         }
 
+        // Advance the in and out pointers to the next location
         out++;
         in++;
     }

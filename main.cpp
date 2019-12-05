@@ -1,3 +1,15 @@
+/**
+ * @file main.cpp
+ * 
+ * @brief main for looper program
+ * 
+ * This file sets up the looper, tracks, audio interface, buttons, etc, then
+ * enters a while(1) loop to periodically run state machines and check for
+ * button presses
+ * 
+ * @author Bryan Cisneros
+ */
+
 #include "Looper.h"
 #include "Button.h"
 #include "TrackController.h"
@@ -9,15 +21,17 @@
 #include <bcm2835.h>
 #include <time.h>
 #include <sched.h>
-//#include <pthread.h>
 
-#define REC_PLAY_BUTTON     16
-#define RESET_BUTTON        12
-#define START_STOP_BUTTON   4
-#define TRACK_1_BUTTON      25
-#define TRACK_2_BUTTON      17
-#define TRACK_3_BUTTON      24
-#define TRACK_4_BUTTON      23
+// Button gpio pin assignements
+#define REC_PLAY_BUTTON     (16)
+#define RESET_BUTTON        (12)
+#define START_STOP_BUTTON   (4)
+#define TRACK_1_BUTTON      (25)
+#define TRACK_2_BUTTON      (17)
+#define TRACK_3_BUTTON      (24)
+#define TRACK_4_BUTTON      (23)
+
+#define TWO_MS (2000000L)
 
 bool recordingMode; //true if recording mode, false if playing mode
 bool masterDone; //true every time the master track starts over. will stay true only for one tick cycle
@@ -34,10 +48,10 @@ Button track3Button(TRACK_3_BUTTON);
 Button track4Button(TRACK_4_BUTTON);
 
 //Tracks
-Track track1(1);
-Track track2(2);
-Track track3(3);
-Track track4(4);
+Track track1;
+Track track2;
+Track track3;
+Track track4;
 
 //LEDs
 Led red1(6);
@@ -57,45 +71,45 @@ TrackController track2Controller(&track2, &track2Button, &red2, &green2);
 TrackController track3Controller(&track3, &track3Button, &red3, &green3);
 TrackController track4Controller(&track4, &track4Button, &red4, &green4);
 
-
+// Looper
 Looper looper(&recPlayButton, &startStopButton, &resetButton, &record_led, &play_led);
 
 int main() {
   printf("Starting setup...\n");
 
-//  if (!bcm2835_init())
-//  {
-//      printf("bcm2835 init failed!\n");
-//      return 1;
-//  }
-
-//  const struct sched_param priority = {70};
-//  sched_setscheduler(0, SCHED_FIFO, &priority);
-
-
+  // Add tracks to the looper
   looper.addTrack(&track1Controller);
   looper.addTrack(&track2Controller);
   looper.addTrack(&track3Controller);
   looper.addTrack(&track4Controller);
 
+  // Initialize the audio and LED interfaces
   audio_init();
-
   LedInterface_init();
 
+  // Set up a struct to sleep between state machine ticks
   struct timespec sleep_time, time2;
   sleep_time.tv_sec = 0;
-  sleep_time.tv_nsec = 2000000L;
+  sleep_time.tv_nsec = TWO_MS;
 
-  rollover = false;
+  rollover = false; // make sure rollover is initialized (to false)
 
-  record_led.turnOn(); //turn on the record LED to signify that setup is complete!
+  //turn on the record LED to signify that setup is complete!
+  record_led.turnOn();
   printf("Setup complete!\n");
 
   while (1)
   {
-	looper.tick();
-	//printf("tick\n");
-	nanosleep(&sleep_time, &time2);
+    // Run the state machine, then sleep for ~2ms. The timing here is very soft.
+    // As long as we're running the state machine every few ms (or somewhat
+    // close to it), we'll be able to detect button presses and update our state
+    // machines fast enough for acceptable performance. The audio handling is
+    // all done in a separate, high-priority, real-time thread, so there is
+    // nothing critical depending on a tight 2ms timing. Extra delays will occur
+    // occasionaly as the OS is running other tasks, but this is not noticable
+    // to the user.
+    looper.tick();
+    nanosleep(&sleep_time, &time2);
   }
 
   return 0;

@@ -1,3 +1,14 @@
+/**
+ * @file Button.cpp
+ * 
+ * @brief Button class
+ * 
+ * This file implements the Button class, including initialization, button 
+ * presses, and debouncing
+ * 
+ * @author Bryan Cisneros
+ */
+
 #include <bcm2835.h>
 #include "Button.h"
 #include "Globals.h"
@@ -7,11 +18,9 @@
 
 bool Button::bcm2835_initialized = false;
 
-Button::Button() {
-}
-
 Button::Button(int pin)
 {
+	// Make sure the bcm2835 is initialized!
 	if(!bcm2835_initialized)
 	{
 		if (!bcm2835_init())
@@ -20,10 +29,13 @@ Button::Button(int pin)
 		}
 		bcm2835_initialized = true;
 	}
+
 	buttonPin = pin;
-	// Set RPI pin to be an input
+
+	// Set pin as an input
     bcm2835_gpio_fsel(buttonPin, BCM2835_GPIO_FSEL_INPT);
-    //  with a pullup
+
+	// Enable pullup on pin
     bcm2835_gpio_set_pud(buttonPin, BCM2835_GPIO_PUD_UP);
 
 	pressed = false;
@@ -35,11 +47,15 @@ Button::~Button()
 }
 
 void Button::tick() {
+	// Check for a press, and check that the previous press has already timed out
 	if (!bcm2835_gpio_lev(buttonPin) && timeout == 0)
 	{
+		// Press detected! set the flag, and also set the timeout for debouncing
 		pressed = true;
 		timeout = TIMEOUT_COUNT;
 	}
+
+	// If the timeout is running, decrement it
 	if (timeout > 0)
 	{
 		timeout--;
@@ -47,6 +63,8 @@ void Button::tick() {
 }
 
 bool Button::fell() {
+	// If the button has been pressed, reset the flag and return true. Otherwise
+	// return false;
 	if (pressed)
 	{
 		pressed = false;

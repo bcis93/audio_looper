@@ -1,7 +1,13 @@
 /**
  * @file hal_spi.h
+ * 
+ * This file was found on github in a library provided by Arjan van Vught. It
+ * is a header file that enables SPI on the raspberry pi zero. Source code here:
+ * https://github.com/vanvught/rpidmx512/blob/master/lib-hal/include/hal_spi.h
  *
  */
+
+
 /* Copyright (C) 2019 by Arjan van Vught mailto:info@raspberrypi-dmx.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy

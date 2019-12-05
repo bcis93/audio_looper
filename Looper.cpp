@@ -1,76 +1,79 @@
+/**
+ * @file Looper.cpp
+ * 
+ * @brief Looper class
+ * 
+ * This file implements the Looper class
+ * 
+ * @author Bryan Cisneros
+ */
+
 #include "Looper.h"
 #include "Globals.h"
+#include "AudioInterface.h"
 #include <stdio.h>
-
-Looper::Looper()
-{
-	state = idle;
-	recordingMode = true;
-}
 
 Looper::Looper(Button* recPlay, Button* startStop, Button* resetButton, Led* red_led, Led* green_led)
 {
+	// Point the member variables to the buttons and LEDs
 	recPlayButton = recPlay;
 	startStopButton = startStop;
 	this->resetButton = resetButton;
 	this->red_led = red_led;
 	this->green_led = green_led;
+
+	// Initialize to idle state, recording mode
 	state = idle;
 	recordingMode = true;
-//	red_led->turnOn();
   	masterTrack = NULL;
-}
-
-
-Looper::~Looper()
-{
 }
 
 void Looper::tick()
 {
-	bool recPlayButtonPressed;
-	bool startStopButtonPressed;
-	bool resetButtonPressed;
-
-	//printf("tick\n");
-
+	// masterDone is set to true when a rollover (wrap-around) occurs. Rollover
+	// is set by the audio interface, so we want to clear it as soon as possible,
+	// but we want to make sure that masterDone is true for one (and only one)
+	// whole tick process.
 	masterDone = rollover;
 	if (rollover)
 	{
 		rollover = false;
 	}
 
+	// Run the state machine for each track controller
 	for (unsigned i = 0; i < trackControllers.size(); i++) {
 		trackControllers[i]->tick();
 	}
 
+	// Run the state machine for each button
 	recPlayButton->tick();
 	startStopButton->tick();
 	resetButton->tick();
   
-	recPlayButtonPressed = recPlayButton->fell();
-	startStopButtonPressed = startStopButton->fell();
-	resetButtonPressed = resetButton->fell();
+	// Check if any of the buttons have been pressed
+	bool recPlayButtonPressed = recPlayButton->fell();
+	bool startStopButtonPressed = startStopButton->fell();
+	bool resetButtonPressed = resetButton->fell();
 
 	if (resetButtonPressed){
-		printf("Reset button pressed!\n");
 		resetPressed();
-		state = idle;
-		recordingMode = true;
-		masterTrack = NULL;
-		waitingToStart = 0;
 	}
 
 
 	if (startStopButtonPressed){
 		printf("Start/stop button pressed!\n");
+
+		// If we were in the stopped state, call the startButton function.
+		// If we were in any other state, call the stopButton function
 		switch (state){
 		case Looper::stopped:
 			//start playing again
 			startButton();
+
 			//move to normal operation
 			state = normalOperation;
-			//currentPosition = 0;
+			audio_set_track_position(0);
+
 			break;
 		default:
 			stopButton();
@@ -83,28 +86,22 @@ void Looper::tick()
 	//state action
 	switch (state){
   	case Looper::idle:
-  		//currentPosition = 0;
   		break;
   	case Looper::firstRecording:
 		break;
   	case Looper::normalOperation:
-  		if (masterDone) { //masterDone flag should only be true for one tick
-  			masterDone = false;
-  		}
-  		// if (currentPosition >= trackLength) {
-  		// 	masterDone = true;
-  		// 	currentPosition = 0;
-  		// }
 		if (recPlayButtonPressed) {
 			printf("recPlay button pressed!\n");
 			recordingMode = !recordingMode;
 			if (recordingMode)
 			{
+				// In recording mode, red should be on and green off
 				green_led->turnOff();
 				red_led->turnOn();
 			}
 			else
 			{
+				// In playing mode, red should be off and green on
 				red_led->turnOff();
 				green_led->turnOn();
 			}
@@ -120,6 +117,9 @@ void Looper::tick()
 	switch (state)
 	{
 	case Looper::idle:
+		// Check each track to see if any of them have moved into the recording
+		// state. If they have, we have started our first recording. That track
+		// becomes our master track, and we move into the first recording state
 		for (unsigned i = 0; i < trackControllers.size(); i++) {
 			if (trackControllers[i]->getState() == TrackController::recording) {
 				masterTrack = trackControllers[i];
@@ -131,8 +131,8 @@ void Looper::tick()
 		break;
 	case Looper::firstRecording:
 		if (masterTrack->getState() == TrackController::playing) {
-			//trackLength = currentPosition;
-			//currentPosition = 0;
+			// If the master track has moved to the playing state, then our first
+			// recording is complete. move to the normal operation state
 			rollover = false; // make sure rollover is false before normal operation
 			state = normalOperation;
 			printf("looper state: normalOperation\n");
@@ -144,43 +144,40 @@ void Looper::tick()
 	  	break;
 	default:
 		break;
-	}
-
-
-//	if (waitingToStart == 0) {
-//		currentPosition = 0;
-//	}
-//	if (waitingToStart == 1) {
-//		for (int i = 0; i < trackControllers.size(); i++) {
-//			if (trackControllers[i].getState == TrackController::recording) {
-//				masterTrack = &trackControllers[i];
-//			}
-//		}
-//	}
-
-	
+	}	
 }
 
 void Looper::addTrack(TrackController* track)
 {
+	// Just add the ttrack controller to the vector
 	trackControllers.push_back(track);
 }
 
 void Looper::stopButton(){
+  // Call the stop button function on each of the track controllers
   for (unsigned i = 0; i < trackControllers.size(); i++) {
     trackControllers[i]->stopButton();
   }
 }
 
 void Looper::startButton(){
-  for (unsigned i = 0; i < trackControllers.size(); i++) {
-    trackControllers[i]->startButton();
-  }
+	// Call the start button function on each of the track controllers
+	for (unsigned i = 0; i < trackControllers.size(); i++) {
+		trackControllers[i]->startButton();
+	}
 }
 
 void Looper::resetPressed(){
-  for (unsigned i = 0; i < trackControllers.size(); i++) {
-    trackControllers[i]->resetButton();
-  }
+	// Reset everything back to default!
+	printf("Reset button pressed!\n");
+	state = idle;
+	recordingMode = true;
+	masterTrack = NULL;
+	waitingToStart = 0;
+
+	// Call the reset button function on each of the track controllers
+	for (unsigned i = 0; i < trackControllers.size(); i++) {
+    	trackControllers[i]->resetButton();
+  	}
 }
 

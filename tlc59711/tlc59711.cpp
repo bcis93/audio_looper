@@ -1,7 +1,14 @@
 /**
  * @file tlc59711.cpp
+ * 
+ * This file was found on github in a library provided by Arjan van Vught. It
+ * provides an interface to interact with the TLC59711 LED driver. A link to the
+ * repository is here:
+ * https://github.com/vanvught/rpidmx512/tree/master/lib-tlc59711
  *
  */
+
+
 /* Copyright (C) 2018-2019 by Arjan van Vught mailto:info@raspberrypi-dmx.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy

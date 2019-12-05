@@ -1,4 +1,13 @@
-#include <bcm2835.h>
+/**
+ * @file Led.cpp
+ * 
+ * @brief Led clas
+ * 
+ * This file implements the Led class
+ * 
+ * @author Bryan Cisneros
+ */
+
 #include "Led.h"
 #include "LedInterface.h"
 #include <stdio.h>
@@ -6,23 +15,12 @@
 
 #define FLASH_TIMEOUT (150)
 
-bool Led::bcm2835_initialized = false;
-
-Led::Led(void) {
-}
-
 Led::Led(int channel)
 {
-	if(!bcm2835_initialized)
-	{
-		if (!bcm2835_init())
-		{
-			printf("bcm2835 init failed!/n");
-		}
-		bcm2835_initialized = true;
-	}
     this->channel = channel;
     count = 0;
+    
+    // initialize to off and not flashing
     flashing = false;
     led_on = false;
 }
@@ -34,6 +32,8 @@ Led::~Led(void)
 
 void Led::tick(void)
 {
+    // If the LED is flashing, increment the counter. If the timeout is reached,
+    // toggle the LED and reset the counter
     if (flashing)
     {
         count++;
@@ -56,6 +56,7 @@ void Led::tick(void)
 
 void Led::turnOn(void)
 {
+    // Turn on the LED, and update internal status variables
     LedInterface_turnOnLed(channel);
     led_on = true;
     flashing = false;
@@ -63,6 +64,7 @@ void Led::turnOn(void)
 
 void Led::turnOff(void)
 {
+    // Turn off the LED, and update internal status variables
     LedInterface_turnOffLed(channel);
     led_on = false;
     flashing = false;
@@ -70,7 +72,9 @@ void Led::turnOff(void)
 
 void Led::flash(void)
 {
+    // Start with the LED on, and update internal status variables
     LedInterface_turnOnLed(channel);
+    led_on = true;
     flashing = true;
     count = 0;
 }

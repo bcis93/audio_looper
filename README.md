@@ -1,1 +1,1 @@
-Multitrack looper based on a Teensy 3.6
+# Multitrack looper based on a Raspberry Pi Zero
