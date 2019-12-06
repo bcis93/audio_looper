@@ -86,6 +86,12 @@ void audio_init(void)
     pthread_create(&audio_thread_id, NULL, audio_thread, NULL);
 }
 
+void audio_reset(void)
+{
+    // Completely clear out the audio buffers
+    memset(audio, 0, sizeof(audio));
+}
+
 
 void* audio_thread(void *arg)
 {

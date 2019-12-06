@@ -12,15 +12,48 @@
 
 #include "Track.h"
 
-// Initialize the audio interface and start the audio thread
+/**
+ * @brief Audio init
+ * 
+ * Initialize the audio interface and start the audio thread
+ * 
+ * @return void
+ */
 void audio_init(void);
 
-// Add a track to the audio interface. Safe to call before audio_init()
+/**
+ * @brief Add track to the audio interface
+ * 
+ * @note Safe to call before audio_init()
+ * 
+ * @param track track to add to audio interface
+ * 
+ * @return void
+ */
 void audio_add_track(Track* track);
 
-// Set the track length to the current position
+/**
+ * @brief Set the track length to the current position
+ * 
+ * @return void
+ */
 void audio_set_track_length(void);
 
-// Set the audio position to 'position'
+/**
+ * @brief Set the audio position
+ * 
+ * @param position position to set the audio to
+ * 
+ * @return void
+ */
 void audio_set_track_position(int position);
+
+/**
+ * @brief Reset audio
+ * 
+ * Reset the audio interface back to default (and erase all tracks)
+ * 
+ * @return void
+ */
+void audio_reset(void);
 
