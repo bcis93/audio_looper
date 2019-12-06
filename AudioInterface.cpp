@@ -17,6 +17,7 @@
 #include <sched.h>
 #include <pthread.h>
 #include "Globals.h"
+#include <string.h>
 
 #define SAMPLE_RATE (44100)
 #define AUDIO_LENGTH (441000) // The max length of audio we can record is 10 seconds

@@ -28,6 +28,10 @@ Looper::Looper(Button* recPlay, Button* startStop, Button* resetButton, Led* red
     masterTrack = NULL;
 }
 
+Looper::~Looper()
+{
+}
+
 void Looper::tick()
 {
     // masterDone is set to true when a rollover (wrap-around) occurs. Rollover
