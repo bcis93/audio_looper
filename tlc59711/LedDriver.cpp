@@ -19,7 +19,7 @@
 #define OFF (0x00)
 #define BRIGHTNESS (0x30)
 
-typedef struct
+typedef volatile struct
 {
     bool update;
     uint8_t led_values[12];
@@ -31,23 +31,25 @@ int shared_leds_id;
 
 uint8_t local_led_values[12];
 
-TLC59711 leds;
+TLC59711* leds;
 
 void LedDriver_init(void)
 {
     bcm2835_init();
 
+    leds = new TLC59711;
+
     // Set the brightness of the LEDs
-    leds.SetGbcRed(BRIGHTNESS);
-    leds.SetGbcGreen(BRIGHTNESS);
-    leds.SetGbcBlue(BRIGHTNESS);
+    leds->SetGbcRed(BRIGHTNESS);
+    leds->SetGbcGreen(BRIGHTNESS);
+    leds->SetGbcBlue(BRIGHTNESS);
 
     // Turn off all LEDs
     for (int i = 0; i < TLC59711_OUT_CHANNELS; i++)
     {
-        leds.Set(i, (uint8_t)OFF);
+        leds->Set(i, (uint8_t)OFF);
     }
-    leds.Update();
+    leds->Update();
 
     // Get or create shared memory
     shared_leds_id= shmget((key_t)1234, sizeof(shared_leds_t), 0666 | IPC_CREAT);
@@ -78,14 +80,16 @@ void LedDriver_checkForUpdates(void)
     {
         // Quickly copy the values into a local array.
         // This will minimize the time for a potential shared data problem
-        memcpy(local_led_values, shared_leds->led_values, 12);
+        memcpy(local_led_values, (void*)(shared_leds->led_values), 12);
         shared_leds->update = false;
 
         // Update the LEDs with the new values
         for (int i = 0; i < TLC59711_OUT_CHANNELS; i++)
         {
-            leds.Set(i, local_led_values[i]);
+            leds->Set(i, local_led_values[i]);
+            printf("%d, ", local_led_values[i]);
         }
-        leds.Update();
+	printf("\n");
+        leds->Update();
     }
 }

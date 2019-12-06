@@ -80,8 +80,6 @@ void Looper::tick()
 
             //move to normal operation
             state = normalOperation;
-            audio_set_track_position(0);
-
             break;
         default:
             stopButton();
@@ -177,6 +175,9 @@ void Looper::stopButton()
 
 void Looper::startButton()
 {
+    // Reset the audio position back to 0
+    audio_set_track_position(0);
+
     // Call the start button function on each of the track controllers
     for (unsigned i = 0; i < trackControllers.size(); i++)
     {
@@ -198,5 +199,12 @@ void Looper::resetPressed()
     {
         trackControllers[i]->resetButton();
     }
+
+    // Reset the audio interface
+    audio_reset();
+
+    // Reset the LEDs back to just the red one on
+    green_led->turnOff();
+    red_led->turnOn();
 }
 

@@ -90,7 +90,15 @@ void audio_init(void)
 void audio_reset(void)
 {
     // Completely clear out the audio buffers
-    memset(audio, 0, sizeof(audio));
+//    memset(audio, 0, MAX_NUMBER_OF_TRACKS * AUDIO_LENGTH * 2);
+    for (int i = 0; i < MAX_NUMBER_OF_TRACKS; i++)
+    {
+        for (int j = 0; j < AUDIO_LENGTH; j++)
+        {
+            audio[i][j] = 0;
+        }
+    }
+    track_length = AUDIO_LENGTH;
 }
 
 
