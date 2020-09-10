@@ -235,7 +235,7 @@ void TrackController::startButton()
         state = idle;
         break;
     case recording:
-        state = idle;
+        state = playing;
         break;
     case playing:
         track->startPlaying();
