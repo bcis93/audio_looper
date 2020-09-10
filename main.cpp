@@ -23,13 +23,13 @@
 #include <sched.h>
 
 // Button gpio pin assignements
-#define REC_PLAY_BUTTON     (16)
-#define RESET_BUTTON        (12)
-#define START_STOP_BUTTON   (4)
-#define TRACK_1_BUTTON      (25)
-#define TRACK_2_BUTTON      (17)
-#define TRACK_3_BUTTON      (24)
-#define TRACK_4_BUTTON      (23)
+#define REC_PLAY_BUTTON     (4)
+#define RESET_BUTTON        (17)
+#define START_STOP_BUTTON   (16)
+#define TRACK_1_BUTTON      (23)
+#define TRACK_2_BUTTON      (24)
+#define TRACK_3_BUTTON      (25)
+#define TRACK_4_BUTTON      (12)
 
 #define TWO_MS (2000000L)
 
