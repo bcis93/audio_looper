@@ -109,6 +109,7 @@ void* audio_thread(void *arg)
     sched_setscheduler(0, SCHED_FIFO, &priority);
 
     // Initialize PortAudio
+    printf("initialize PortAudio");
     PaError err = Pa_Initialize();
     if( err != paNoError )
     {
@@ -116,6 +117,7 @@ void* audio_thread(void *arg)
     }
     else
     {
+        printf("Get number of devices");
         int numOfDevices = Pa_GetDeviceCount();
         if(numOfDevices < 0) {
             fprintf(stderr, "Error: portaudio was unable to find a audio device! Code: 0x%x\n", numOfDevices);
