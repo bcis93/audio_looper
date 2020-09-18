@@ -17,8 +17,8 @@ int main()
         printf("Get number of devices");
         int numOfDevices = Pa_GetDeviceCount();
         if(numOfDevices < 0) {
-            fprintf(stderr, "Error: portaudio was unable to find a audio device! Code: 0x%x\n", numOfDevices);
-            quit(-1);
+            printf("Error: portaudio was unable to find a audio device! Code: 0x%x\n", numOfDevices);
+            return 0;
         }
         for(int i = 0; i < numOfDevices; i++) {
             const PaDeviceInfo *deviceInfo = Pa_GetDeviceInfo(i);

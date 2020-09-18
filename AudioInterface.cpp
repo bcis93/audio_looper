@@ -120,8 +120,8 @@ void* audio_thread(void *arg)
         printf("Get number of devices");
         int numOfDevices = Pa_GetDeviceCount();
         if(numOfDevices < 0) {
-            fprintf(stderr, "Error: portaudio was unable to find a audio device! Code: 0x%x\n", numOfDevices);
-            quit(-1);
+            printf("Error: portaudio was unable to find a audio device! Code: 0x%x\n", numOfDevices);
+            return 0;
         }
         for(int i = 0; i < numOfDevices; i++) {
             const PaDeviceInfo *deviceInfo = Pa_GetDeviceInfo(i);
@@ -151,7 +151,7 @@ void* audio_thread(void *arg)
         }
 
         // Start the stream
-        printf("starting stream")
+        printf("starting stream");
         err = Pa_StartStream( stream );
         if( err != paNoError )
         {
