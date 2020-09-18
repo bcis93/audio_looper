@@ -10,7 +10,7 @@
  */
 
 #include "AudioInterface.h"
-#include "portaudio.h"
+#include <portaudio.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -26,7 +26,7 @@
 #define CHANNELS (1) // Mono audio
 
 #define AUDIO_THREAD_PRIORITY (80)
-#define DEVICE_INDEX (2)
+#define DEVICE_INDEX (1)
 
 // Variables related to audio tracks
 static Track* tracks[MAX_NUMBER_OF_TRACKS] = {};

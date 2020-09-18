@@ -5,7 +5,7 @@ ifeq ($(CFLAGS),)
 	CFLAGS = -g -Wall -Werror -O3
 endif
 ifeq ($(LDFLAGS),)
-	LDFLAGS = -lrt -lasound -lpthread -lportaudio -lbcm2835
+	LDFLAGS = -lrt -lasound -pthread -lportaudio -lbcm2835
 endif
 
 looper: *.cpp
