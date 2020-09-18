@@ -116,6 +116,23 @@ void* audio_thread(void *arg)
     }
     else
     {
+        int numOfDevices = Pa_GetDeviceCount();
+        if(numOfDevices < 0) {
+            fprintf(stderr, "Error: portaudio was unable to find a audio device! Code: 0x%x\n", numOfDevices);
+            quit(-1);
+        }
+        for(int i = 0; i < numOfDevices; i++) {
+            const PaDeviceInfo *deviceInfo = Pa_GetDeviceInfo(i);
+
+            // skip devices don't have input
+            if(deviceInfo->maxInputChannels==0) continue;
+            
+            printf("Device #%d: %s\n\
+    \tInput Channels: %d\n\
+    \tDefault SampleRate: %lf\n",\
+            i+1, deviceInfo->name, deviceInfo->maxInputChannels,\
+            deviceInfo->defaultSampleRate);
+        }
         // Create a PortAudio stream
         PaStream *stream;
         PaError err;
@@ -124,6 +141,7 @@ void* audio_thread(void *arg)
         PaStreamParameters output = {index, CHANNELS, paInt16, (Pa_GetDeviceInfo(index))->defaultLowOutputLatency, NULL};
 
         // Open the stream
+        printf("opening stream");
         err = Pa_OpenStream	(&stream, &input, &output, SAMPLE_RATE, CHUNK_SIZE, paNoFlag, paCallback, NULL);
         if( err != paNoError )
         {
@@ -131,6 +149,7 @@ void* audio_thread(void *arg)
         }
 
         // Start the stream
+        printf("starting stream")
         err = Pa_StartStream( stream );
         if( err != paNoError )
         {
