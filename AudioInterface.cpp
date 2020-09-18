@@ -10,7 +10,7 @@
  */
 
 #include "AudioInterface.h"
-#include "portaudio.h"
+#include <portaudio.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
