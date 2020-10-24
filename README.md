@@ -6,7 +6,7 @@ Multitrack audio looper based on a Raspberry Pi Zero.
 
 The following block diagram shows all of the classes and modules used in the system and provides a high-level overview of how they interact with each other. As can be seen in the block diagram, the firmware is split into two separate processes. The first process is the main looper system, which handles everything from the audio to the buttons to recording and playing back tracks. The second process is the LED driver, which interfaces with the TLC59711 to turn LEDs on or off as needed. These two processes communicate with each other through shared memory. The looper process updates the shared memory with new LED values as needed, which are then updated by the LED driver as it checks the shared memory periodically. A more detailed description of each process, along with each firmware module, is provided in the following sections.
 
-![Software Modules](block_diagrams/software_modules)
+![Software Modules](block_diagrams/software_modules.jpg)
 
 ### Process 1: Looper
 
@@ -26,13 +26,13 @@ The actual interfacing with the external audio board is aided by the PortAudio l
 
 The Looper class is responsible for the high-level control of the looper system. It runs a state machine based on the design shown in block diagram below. After system initialization, the Looper starts in the Idle state. It waits here until one of the track buttons is pressed, in which case the system starts recording on that track and the Looper moves to the First Recording state. Once that same track button is pressed again, the system stops recording and starts playing back the recorded audio, and the Looper moves to the Normal Operation state. The Looper will then spend most of its time in this state. It only moves out of this state if the reset button or the start/stop button is pressed. If the reset button is pressed, the Looper resets everything back to default, and instructs all other modules to do the same. If the start/stop button is pressed, all audio output is stopped, and the Looper moves into the Stopped state. Once the start/stop button is pressed again, the Looper moves back into normal operation. It is also important to note that in each tick of the Looper state machine, a call to each Track Controller’s and Button’s tick function is also called.
 
-![Looper State Machine](block_diagrams/looper_state_machine)
+![Looper State Machine](block_diagrams/looper_state_machine.jpg)
 
 #### Track Controller
 
 The track controller is responsible for managing everything associated with a track on the looper. This includes the Track itself, a Button, and two LEDs. The Track Controller looks for a button press from its associated button, and when it sees one, it updates the Track and LEDs accordingly. The following block diagram shows the design of the Track Controller’s state machine. Once created, the Track Controller starts out in the Idle state. Once its Button is pressed, it instructs the Track to start recording audio and moves into the Recording state. It will keep recording until the Button is pressed again, in which case it will tell the Track to stop recording, and will move into the Playing state. Another press of the Button will cause the Track Controller to move either to the Recording state or the Waiting state, depending on if the Looper is in recording or playing mode. Once back in recording mode, the track will continue to playback, but will also be recording new audio. In the Waiting state, the track is neither playing nor recording. It is waiting for the Button to be pressed again, in which case it will move to either the Recording or Playing state again. The Stopped state is for when the user has pressed the start/stop button. This state is similar to the Waiting state, in that the track is neither playing nor recording. The difference is that the only way to transition out of this state is through another press of the start/stop button, in which case the Track controller will go back to the state it was last in (except if the state was in the Recording mode when the button was pressed. In this case, it will return to the Playing state).
 
-![Track Controller State Machine](block_diagrams/track_controller_state_machine)
+![Track Controller State Machine](block_diagrams/track_controller_state_machine.jpg)
 
 #### Track
 
