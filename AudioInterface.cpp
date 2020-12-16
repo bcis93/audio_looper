@@ -132,6 +132,8 @@ void* audio_thread(void *arg)
                 audio_index = i;
             }
         }
+        cout << "using audio index " << audio_index << endl;
+
         // Create a PortAudio stream
         PaStream *stream;
         PaError err;
