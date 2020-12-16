@@ -17,7 +17,8 @@
 #include <sched.h>
 #include <pthread.h>
 #include "Globals.h"
-#include <string.h>
+#include <string>
+#include <iostream>
 
 #define SAMPLE_RATE (44100)
 #define AUDIO_LENGTH (441000) // The max length of audio we can record is 10 seconds
@@ -26,7 +27,9 @@
 #define CHANNELS (1) // Mono audio
 
 #define AUDIO_THREAD_PRIORITY (80)
-#define DEVICE_INDEX (1)
+#define DEFAULT_DEVICE_INDEX (0)
+
+using namespace std;
 
 // Variables related to audio tracks
 static Track* tracks[MAX_NUMBER_OF_TRACKS] = {};
@@ -104,10 +107,6 @@ void audio_reset(void)
 
 void* audio_thread(void *arg)
 {
-    // Set this thread as a high priority real time thread
-    const struct sched_param priority = {AUDIO_THREAD_PRIORITY};
-    sched_setscheduler(0, SCHED_FIFO, &priority);
-
     // Initialize PortAudio
     PaError err = Pa_Initialize();
     if( err != paNoError )
@@ -116,12 +115,35 @@ void* audio_thread(void *arg)
     }
     else
     {
+        int audio_index = DEFAULT_DEVICE_INDEX;
+        printf("Get number of devices\n");
+        int numOfDevices = Pa_GetDeviceCount();
+        if(numOfDevices < 0) {
+            printf("Error: portaudio was unable to find a audio device! Code: 0x%x\n", numOfDevices);
+        }
+        for(int i = 0; i < numOfDevices; i++) {
+            const PaDeviceInfo *deviceInfo = Pa_GetDeviceInfo(i);
+            
+            // compare deviceInfo->name to expected value and store this index
+            string device_name(deviceInfo->name);
+            cout << device_name << endl;
+            if (device_name.find("Fe-Pi") != string::npos)
+            {
+                audio_index = i;
+            }
+        }
+        cout << "using audio index " << audio_index << endl;
+
         // Create a PortAudio stream
         PaStream *stream;
         PaError err;
-        PaDeviceIndex index = DEVICE_INDEX;
+        PaDeviceIndex index = audio_index;
         PaStreamParameters input = {index, CHANNELS, paInt16, (Pa_GetDeviceInfo(index))->defaultLowInputLatency, NULL};
         PaStreamParameters output = {index, CHANNELS, paInt16, (Pa_GetDeviceInfo(index))->defaultLowOutputLatency, NULL};
+
+        // Set this thread as a high priority real time thread
+        const struct sched_param priority = {AUDIO_THREAD_PRIORITY};
+        sched_setscheduler(0, SCHED_FIFO, &priority);
 
         // Open the stream
         err = Pa_OpenStream	(&stream, &input, &output, SAMPLE_RATE, CHUNK_SIZE, paNoFlag, paCallback, NULL);
