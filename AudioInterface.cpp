@@ -18,6 +18,7 @@
 #include <pthread.h>
 #include "Globals.h"
 #include <string>
+#include <iostream>
 
 #define SAMPLE_RATE (44100)
 #define AUDIO_LENGTH (441000) // The max length of audio we can record is 10 seconds
@@ -115,7 +116,7 @@ void* audio_thread(void *arg)
     else
     {
         int audio_index = DEFAULT_DEVICE_INDEX;
-        printf("Get number of devices");
+        printf("Get number of devices\n");
         int numOfDevices = Pa_GetDeviceCount();
         if(numOfDevices < 0) {
             printf("Error: portaudio was unable to find a audio device! Code: 0x%x\n", numOfDevices);
@@ -125,10 +126,10 @@ void* audio_thread(void *arg)
             
             // compare deviceInfo->name to expected value and store this index
             string device_name(deviceInfo->name);
+            cout << device_name << endl;
             if (device_name.find("Fe-Pi") != string::npos)
             {
                 audio_index = i;
-                break;
             }
         }
         // Create a PortAudio stream
